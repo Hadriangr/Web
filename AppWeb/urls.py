@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import path,include
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('', views.index, name='index'),  # Ejemplo de una URL en tu aplicación
@@ -13,5 +14,10 @@ urlpatterns = [
     path('cuadro-2/', views.Hcuadro_2, name='Hcuadro_2'),
     path('cuadro-3/', views.Hcuadro_3, name='Hcuadro_3'),
     path('cuadro-4/', views.Hcuadro_4, name='Hcuadro_4'),
-    path('login/', views.user_login, name='login')
+    #path('login/', auth_views.LoginView.as_view(), name='login'),
+    #path('logout/', auth_views.LoginView.as_view(), name='logout'),
+    #path('password-change/', auth_views.PasswordChangeView.as_view(), name ='password_change'),
+    #path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(), name ='password_change_done'),
+    path('',include('django.contrib.auth.urls')),
+    path('registro/', views.register, name='registro')
 ]

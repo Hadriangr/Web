@@ -24,26 +24,6 @@
             <a class="navbar-brand" href="#!">Solicitar examen</a>
             <a class="btn btn-primary" href="#signup">Iniciar Sesion</a>
         </div>
-        
-
-        {% if request.user.is_authenticated %}
-        <div class="navbar-end">
-          <div class="navbar-item">
-            <p>
-              Hello {{ request.user.first_name|default:request.user.username }}, 
-              <a class="" href="{% url 'logout' %}">
-                <strong> Log out</strong>
-              </a>
-            </p>
-          </div>
-        </div>
-    
-      {% endif %}
-    </div>
-
-
-
-
     </nav>
     <!-- Masthead-->
     <header class="masthead">
@@ -61,6 +41,7 @@
 
     <!-- Aquí se incluirá el contenido específico de cada página -->
     {% block content %}
+    <h1>Bienvenido</h1>
     {% endblock %}
 
     <!-- Sección con imagen de fondo -->
