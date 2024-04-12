@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from .forms import LoginForm, UserRegistrationForm
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
@@ -90,13 +90,13 @@ def user_login(request):
     else:
         form = LoginForm()
     
-    return render(request, 'login.html',{'form':form})
+    return render(request, 'registration/login.html',{'form':form})
 
 
 @login_required
 def dashboard(request):
     return render(request,
-                  'dashboard.html')
+                  'registration/dashboard.html')
 
 
 def register(request):
@@ -116,3 +116,8 @@ def register(request):
         return render(request,
                       'registro.html',
                       {'user_form':user_form})
+    
+
+def user_logout(request):
+    logout(request)
+    return redirect('index')

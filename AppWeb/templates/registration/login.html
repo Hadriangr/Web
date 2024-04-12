@@ -6,7 +6,7 @@
     <h1 class="is-size-3 mt-3">Log-in</h1>
     {% if form.errors %}
       <p class="is-size-5">
-        Su Nombre y contraseña no coiciden.
+        Su Nombre y Contraseña no coiciden. <br>
         Por favor intente de nuevo.
       </p>
     {% else %}
@@ -24,7 +24,7 @@
           {% render_field field class+="input mt-2" %}
         {% endfor %}
         {% csrf_token %}
-        <input type="submit" value="Log-in" class="button mt-2">
+        <input type="submit" value="Login" class="button mt-2">
         <input type="hidden" name="next" value="{{ next }}" />
       </form>
     </div>
