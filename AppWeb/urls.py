@@ -20,4 +20,7 @@ urlpatterns = [
     path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(), name ='password_change_done'),
     path('registro/', views.register, name='registro'),
     path('dashboard/',views.dashboard, name='dashboard'),
+    path('registro_done/', views.registro_done, name='registro_done'),
+    path('examenes/', views.lista_examenes, name='lista_examenes'),
+    path('detalle_examen/<int:pk>/', views.seleccionar_examenes, name='detalle_examen'),
 ]

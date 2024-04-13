@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Examenes
+{% endblock %}
+
+{% block content %}
+<style>
+    .examenes-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+    
+    .examen {
+        text-align: center;
+        border: 2px solid #ccc; /* Borde alrededor de cada examen */
+        padding: 20px; /* Espaciado interno */
+        background-color: #f9f9f9; /* Fondo ligeramente más oscuro */
+        border-radius: 10px; /* Bordes redondeados */
+    }
+    
+    .examen img {
+        max-width: 100%;
+        border-radius: 5px; /* Bordes redondeados para la imagen */
+    }
+    
+    .examen h5, .examen p {
+        margin: 0;
+    }
+    
+    .examen form {
+        margin-top: 10px; /* Espacio superior para separar el botón */
+    }
+    
+    .examen button {
+        background-color: #4CAF50; /* Color de fondo del botón */
+        color: white; /* Color del texto del botón */
+        border: none;
+        padding: 10px 20px; /* Padding interno */
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s; /* Transición suave del color de fondo */
+    }
+    
+    .examen button:hover {
+        background-color: #45a049; /* Color de fondo del botón al pasar el cursor */
+    }
+    </style>
+    
+    <div class="examenes-container">
+        {% for examen in examenes %}
+            <div class="examen">
+                <a href="{% url 'detalle_examen' examen.id %}">
+                    <img src="{% static examen.imagen_url %}" alt="{{ examen.titulo }}">
+                </a>
+                <h5>{{ examen.titulo }}</h5>
+                <p>Precio: ${{ examen.precio }}</p>
+                <form action="{% url 'detalle_examen' examen.id %}">
+                    <button type="submit">Adquirir</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+    
+        
+{% endblock %}
+

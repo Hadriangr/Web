@@ -1,8 +1,10 @@
 from django.shortcuts import render,redirect
-from .forms import LoginForm, UserRegistrationForm
+from .forms import LoginForm, CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from .forms import CustomUserCreationForm,ExamenForm
+from .models import Examen
 
 # Create your views here.
 def index(request):
@@ -99,25 +101,49 @@ def dashboard(request):
                   'registration/dashboard.html')
 
 
+
 def register(request):
     if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST)
+        user_form = CustomUserCreationForm(request.POST)
         if user_form.is_valid():
-            new_user = user_form.save(commit=False)
-            new_user.set_password(
-                user_form.cleaned_data['password']
-            )
-            new_user.save()
-            return render(request,
-                          'registro_done.html',
-                          {'new_user':new_user})
+            new_user = user_form.save()
+            return redirect('registro_done')
     else:
-        user_form = UserRegistrationForm()
-        return render(request,
-                      'registro.html',
-                      {'user_form':user_form})
-    
+        user_form = CustomUserCreationForm()
+    return render(request, 'registro.html', {'user_form': user_form})
+
+
+
+
 
 def user_logout(request):
     logout(request)
     return redirect('index')
+
+
+
+
+def registro_done(request):
+    return render(request, 'registro_done.html')
+
+
+
+
+
+def lista_examenes(request):
+    examenes = Examen.objects.all()
+    return render(request, 'examenes/lista_examenes.html', {'examenes': examenes})
+
+
+
+
+def seleccionar_examenes(request):
+    if request.method == 'POST':
+        form = ExamenForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # Puedes redirigir a otra página o mostrar un mensaje de éxito aquí
+    else:
+        form = ExamenForm()
+    examenes = Examen.objects.all()
+    return render(request, 'examenes/seleccionar_examenes.html', {'form': form, 'examenes': examenes})
