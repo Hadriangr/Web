@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import CustomUser,Examen,Examen_detallado
+from .models import CustomUser,Examen,SubcategoriaExamen
 
 
 # Register your models here.
 admin.site.register(CustomUser)
 admin.site.register(Examen)
-admin.site.register(Examen_detallado)
+admin.site.register(SubcategoriaExamen)

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Examenes
+{% endblock %}
+
+{% block content %}
+<h1>{{ examen.nombre }}</h1>
+<ul>
+    {% for subcategoria in subcategorias %}
+        <li>{{ subcategoria.nombre }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,9 +1,9 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from .forms import LoginForm, CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .forms import CustomUserCreationForm,ExamenForm
+from .forms import CustomUserCreationForm
 from .models import Examen
 
 # Create your views here.
@@ -137,13 +137,9 @@ def lista_examenes(request):
 
 
 
-def seleccionar_examenes(request):
-    if request.method == 'POST':
-        form = ExamenForm(request.POST)
-        if form.is_valid():
-            form.save()
-            # Puedes redirigir a otra página o mostrar un mensaje de éxito aquí
-    else:
-        form = ExamenForm()
-    examenes = Examen.objects.all()
-    return render(request, 'examenes/seleccionar_examenes.html', {'form': form, 'examenes': examenes})
+
+
+def mostrar_subcategorias(request, examen_id):
+    examen = get_object_or_404(Examen, id=examen_id)
+    subcategorias = examen.subcategorias.all()
+    return render(request, 'examenes/mostrar_subcategorias.html', {'examen': examen, 'subcategorias': subcategorias})

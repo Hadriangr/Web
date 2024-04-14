@@ -56,12 +56,13 @@
     <div class="examenes-container">
         {% for examen in examenes %}
             <div class="examen">
-                <a href="{% url 'detalle_examen' examen.id %}">
-                    <img src="{% static examen.imagen_url %}" alt="{{ examen.titulo }}">
+                <a href="{% url 'mostrar_subcategorias' examen.id %}">
+                    <img src="{% static examen.imagen_url %}" alt="{{ examen.nombre }}">
+                    <h6>{{ examen.nombre }}</h6> 
                 </a>
                 <h5>{{ examen.titulo }}</h5>
                 <p>Precio: ${{ examen.precio }}</p>
-                <form action="{% url 'detalle_examen' examen.id %}">
+                <form action="{% url 'mostrar_subcategorias' examen.id %}">
                     <button type="submit">Adquirir</button>
                 </form>
             </div>

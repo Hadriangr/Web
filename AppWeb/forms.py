@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext as _
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser,Examen_detallado
+from .models import CustomUser,Examen
 from django.core.exceptions import ValidationError
 
 
@@ -103,9 +103,4 @@ class CustomUserCreationForm(UserCreationForm):
         return user
     
 
-class ExamenForm(forms.ModelForm):
-    class Meta:
-        model = Examen_detallado
-        fields = ['seleccionado']
-        widgets = {'seleccionado': forms.CheckboxInput()}
         

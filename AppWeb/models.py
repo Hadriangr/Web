@@ -36,19 +36,36 @@ class CustomUser(AbstractUser):
 
 
 
-class Examen(models.Model):
-    titulo = models.CharField(max_length=100)
-    imagen_url = models.CharField(max_length=200)  # Almacenar la URL de la imagen
-    precio = models.DecimalField(max_digits=6, decimal_places=2, default=1.000)
 
-    def __str__(self):
-        return self.titulo
-    
-
-
-class Examen_detallado(models.Model):
+class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
-    seleccionado = models.BooleanField(default=False)
 
     def __str__(self):
         return self.nombre
+
+
+
+class Examen(models.Model):
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+    imagen_url = models.CharField(max_length=200, null=True)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    categoria = models.ForeignKey('categoria', related_name='examenes', on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre
+
+
+
+
+class SubcategoriaExamen(models.Model):  # Cambié el nombre de la clase a SubcategoriaExamen
+    nombre = models.CharField(max_length=100)
+    examen = models.ForeignKey(Examen, related_name='subcategorias', on_delete=models.CASCADE)  # Relacionado con Examen, no con Categoria
+
+    def __str__(self):
+        return self.nombre
+    
+
+
+
+

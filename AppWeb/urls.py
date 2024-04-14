@@ -21,6 +21,6 @@ urlpatterns = [
     path('registro/', views.register, name='registro'),
     path('dashboard/',views.dashboard, name='dashboard'),
     path('registro_done/', views.registro_done, name='registro_done'),
-    path('examenes/', views.lista_examenes, name='lista_examenes'),
-    path('detalle_examen/<int:pk>/', views.seleccionar_examenes, name='detalle_examen'),
+    path('examenes/', views.lista_examenes, name='Examenes'),
+    path('examen/<int:examen_id>/subcategorias/', views.mostrar_subcategorias, name='mostrar_subcategorias'),
 ]
