@@ -58,7 +58,7 @@
             <div class="examen">
                 <a href="{% url 'mostrar_subcategorias' examen.id %}">
                     <img src="{% static examen.imagen_url %}" alt="{{ examen.nombre }}">
-                    <h6>{{ examen.nombre }}</h6> 
+                    <h6 >{{ examen.nombre }}</h6> 
                 </a>
                 <h5>{{ examen.titulo }}</h5>
                 <p>Precio: ${{ examen.precio }}</p>
