@@ -6,8 +6,9 @@ from django.contrib.auth.decorators import login_required
 from .models import Examen,CustomUser
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
-from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
-
+from django.contrib.auth.forms import PasswordResetForm
+from django.core.mail import send_mail
+from django.contrib import messages
 
 
 
@@ -62,10 +63,7 @@ def user_login(request):
     return render(request, 'registration/login.html',{'form':form})
 
 
-@login_required
-def dashboard(request):
-    return render(request,
-                  'registration/dashboard.html')
+
 
 
 
@@ -106,22 +104,38 @@ def mostrar_subcategorias(request, examen_id):
 
 
 
-# PasswordResetView: Vista para solicitar el restablecimiento de contraseña
-class password_reset(PasswordResetView):
-    template_name = 'registration/password_reset_form.html'  # Plantilla para el formulario de restablecimiento de contraseña
-    email_template_name = 'registration/password_reset_email.html'  # Plantilla para el correo electrónico de restablecimiento de contraseña
-    success_url = reverse_lazy('password_reset_done')  # URL a la que se redirige después de enviar el correo electrónico de restablecimiento de contraseña
+from django.core.mail import send_mail
 
-# PasswordResetDoneView: Vista para la confirmación del envío del correo electrónico de restablecimiento de contraseña
-class password_reset_done(PasswordResetDoneView):
-    template_name = 'registration/password_reset_done.html'  # Plantilla para la confirmación del envío del correo electrónico
+def custom_password_reset(request):
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            # Enviar correo electrónico de restablecimiento de contraseña
+            send_mail(
+                'Solicitud de restablecimiento de contraseña',
+                'Por favor sigue este enlace para restablecer tu contraseña.',
+                'your_email@gmail.com',  # Reemplaza con tu dirección de correo electrónico
+                [email],
+                fail_silently=False,
+            )
+            messages.success(request, 'Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.')
+            return redirect('password_reset_done')
+    else:
+        form = PasswordResetForm()
+    return render(request, 'registration/password_reset_form.html', {'form': form})
 
-# PasswordResetConfirmView: Vista para confirmar el restablecimiento de contraseña mediante el enlace enviado por correo electrónico
-class password_reset_confirm(PasswordResetConfirmView):
-    template_name = 'registration/password_reset_confirm.html'  # Plantilla para el formulario de confirmación de restablecimiento de contraseña
-    success_url = reverse_lazy('password_reset_complete')  # URL a la que se redirige después de restablecer la contraseña con éxito
 
-# PasswordResetCompleteView: Vista para confirmar que la contraseña se ha restablecido correctamente
-class password_reset_completed(PasswordResetCompleteView):
-    template_name = 'registration/password_reset_complete.html'  # Plantilla para la confirmación del restablecimiento de contraseña
 
+
+
+
+
+def custom_password_reset_done(request):
+    return render(request, 'registration/password_reset_done.html')
+
+def custom_password_reset_confirm(request):
+    return render(request, 'registration/password_reset_confirm.html')
+
+def custom_password_reset_complete(request):
+    return render(request, 'registration/password_reset_complete.html')

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -125,7 +126,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = 'dashboard'
+LOGIN_REDIRECT_URL = 'index'
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
@@ -138,9 +139,11 @@ AUTHENTICATION_BACKENDS = (
 )
 """
 
+load_dotenv()
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('idontkjnow@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('Keine1710ihr..')
+EMAIL_HOST_USER = 'idontkjnow@gmail.com'  # Usar tu dirección de correo electrónico de Gmail
+EMAIL_HOST_PASSWORD = 'uazd gzik nnez rsid'  # Usar la contraseña de aplicación generada
