@@ -1,65 +1,31 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from .forms import LoginForm, CustomUserCreationForm
-from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth import authenticate, login,logout,get_user_model
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .forms import CustomUserCreationForm
-from .models import Examen
+from .models import Examen,CustomUser
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
+
+
+
+
+class SignUpView(CreateView):
+    model = CustomUser
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy('login')  # Redirigir al inicio de sesión después del registro
+    template_name = 'registration/signup.html'
+
+
+
+
+
+
 
 # Create your views here.
 def index(request):
     return render(request, 'index.html')
 
-
-def examenes_mujer(request):
-    # Recuperar las recetas médicas de la categoría "Examenes"
-    examenes = RecetaMedica.objects.filter(categoria='Examenes')
-    
-    # Crear una lista de diccionarios con los datos necesarios para cada cuadro
-    cuadros = []
-    for examen in examenes:
-        cuadro = {
-            'titulo': examen.nombre,
-            'contenido': examen.descripcion,
-            'ruta': f'detalle_receta/{examen.id}',  # URL para ver los detalles de la receta
-        }
-        cuadros.append(cuadro)
-    
-    return render(request, 'examenes_mujer.html', {'cuadros': cuadros})
-
-def render_cuadro(request, titulo, contenido, template_name):
-    return render(request, template_name, {'titulo': titulo, 'contenido': contenido})
-
-def Mcuadro_1(request):
-    return render_cuadro(request, 'Cuadro 1', 'Contenido del cuadro 1', 'Mcuadro_1.html')
-
-
-def Mcuadro_2(request):
-    return render_cuadro(request, 'Cuadro 2', 'Contenido del cuadro 2', 'Mcuadro_2.html')
-
-
-def Mcuadro_3(request):
-    return render_cuadro(request, 'Cuadro 3', 'Contenido del cuadro 3', 'Mcuadro_3.html')
-
-
-def Mcuadro_4(request):
-    return render_cuadro(request, 'Cuadro 4', 'Contenido del cuadro 4', 'Mcuadro_4.html')
-
-
-def Hcuadro_1(request):
-    return render_cuadro(request, 'Cuadro 1', 'Contenido del cuadro 1', 'Hcuadro_1.html')
-
-
-def Hcuadro_2(request):
-    return render_cuadro(request, 'Cuadro 2', 'Contenido del cuadro 2', 'Hcuadro_2.html')
-
-
-def Hcuadro_3(request):
-    return render_cuadro(request, 'Cuadro 3', 'Contenido del cuadro 3', 'Hcuadro_3.html')
-
-
-def Hcuadro_4(request):
-    return render_cuadro(request, 'Cuadro 4', 'Contenido del cuadro 4', 'Hcuadro_4.html')
 
 
 
@@ -102,15 +68,6 @@ def dashboard(request):
 
 
 
-def register(request):
-    if request.method == 'POST':
-        user_form = CustomUserCreationForm(request.POST)
-        if user_form.is_valid():
-            new_user = user_form.save()
-            return redirect('registro_done')
-    else:
-        user_form = CustomUserCreationForm()
-    return render(request, 'registro.html', {'user_form': user_form})
 
 
 
@@ -121,10 +78,6 @@ def user_logout(request):
     return redirect('index')
 
 
-
-
-def registro_done(request):
-    return render(request, 'registro_done.html')
 
 
 
