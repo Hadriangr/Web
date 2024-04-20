@@ -3,6 +3,7 @@ from .views import SignUpView
 from . import views
 from django.contrib.auth import views as auth_views
 
+
 urlpatterns = [
     path('', views.index, name='index'),  # Ejemplo de una URL en tu aplicación
     path('login/', auth_views.LoginView.as_view(), name='login'),

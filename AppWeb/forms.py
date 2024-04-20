@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext as _
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser,Examen
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
 
 
 
@@ -19,6 +19,5 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 
-    
 
-        
+
