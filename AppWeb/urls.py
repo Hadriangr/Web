@@ -13,4 +13,8 @@ urlpatterns = [
     path('examenes/', views.lista_examenes, name='Examenes'),
     path('examen/<int:examen_id>/subcategorias/', views.mostrar_subcategorias, name='mostrar_subcategorias'),
     path('registro/', SignUpView.as_view(), name='registro'),
+    path('cambio_clave/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('cambio_clave/hecho/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('cambio/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('cambio/hecho/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]

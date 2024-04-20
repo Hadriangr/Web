@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 
 
-
+#Validación de rut
 def validar_rut(rut):
     rut = rut.upper().replace(".", "").replace("-", "")
     rut_numeros = rut[:-1]
@@ -33,7 +33,7 @@ def validar_rut(rut):
     else:
         return False
 
-
+#se hace llamado de validación de rut y se validan el resto de los campos.
 class CustomUser(AbstractUser):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)

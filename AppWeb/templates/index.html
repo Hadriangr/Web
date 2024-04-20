@@ -20,10 +20,20 @@
         <!-- Navigation-->
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href="#!">Mediweb (placeholder)</a>
-                <a class="navbar-brand" href="#!">Sobre Mi</a>
-                <a class="navbar-brand" href="#!">Solicitar examen</a>
-                <a class="btn btn-primary" href="login">Iniciar Sesion</a>
+                <a class="navbar-brand" href="{% url 'index' %}">Mediweb</a> <!-- Enlace al inicio -->
+                <a class="navbar-brand" href="{% url 'index' %}">Sobre Mi</a>
+                <a class="navbar-brand" href="{% url 'Examenes' %}">Solicitar examen</a>
+                
+                {% if request.user.is_authenticated %}
+                    <div class="navbar-item">
+                        <p>
+                            Hola {{ request.user.first_name|default:request.user.username }}, 
+                            <a href="{% url 'logout' %}">Cerrar sesión</a>
+                        </p>
+                    </div>
+                {% else %}
+                    <a class="btn btn-primary" href="{% url 'login' %}">Iniciar Sesión</a>
+                {% endif %}
             </div>
         </nav>
         <!-- Masthead-->
