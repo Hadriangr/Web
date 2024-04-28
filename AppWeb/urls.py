@@ -2,7 +2,7 @@ from django.urls import path,include
 from .views import SignUpView
 from . import views
 from django.contrib.auth import views as auth_views
-from .views import custom_password_reset, custom_password_reset_done, custom_password_reset_confirm, custom_password_reset_complete
+from .views import custom_password_reset, custom_password_reset_done, custom_password_reset_confirm,ver_carrito , custom_password_reset_complete,mostrar_carrito,agregar_al_carrito,eliminar_del_carrito
 
 
 urlpatterns = [
@@ -18,6 +18,10 @@ urlpatterns = [
     path('password_reset/done/', custom_password_reset_done, name='password_reset_done'),
     path('reset/<uidb64>/<token>/', custom_password_reset_confirm, name='password_reset_confirm'),
     path('reset/done/', custom_password_reset_complete, name='password_reset_complete'),
+    path('agregar_al_carrito/<int:subcategoria_id>/', agregar_al_carrito, name='agregar_al_carrito'),
+    path('mostrar_carrito/', mostrar_carrito, name='mostrar_carrito'),
+    path('eliminar_del_carrito/<int:subcategoria_id>/', eliminar_del_carrito, name='eliminar_del_carrito'),
+    path('ver_carrito/', ver_carrito, name='ver_carrito'),
     
 ]
 

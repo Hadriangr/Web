@@ -10,77 +10,89 @@
 {% block content %}
 
 <style>
-    /* Estilos para los checkbox redondos */
-    .checkbox-container {
-        display: inline-block;
-        vertical-align: middle;
-        cursor: pointer;
-    }
-    
-    .checkbox-container input[type="checkbox"] {
-        display: none;
-    }
-    
-    .checkmark {
-        position: relative;
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        border: 2px solid #ccc;
-        text-align: center;
-        line-height: 20px;
-    }
-    
-    .checkmark::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-family: 'Arial', sans-serif; /* Cambia la fuente de iconos según tus necesidades */
-        font-size: 14px;
-    }
-    
-    .checkbox-container input[type="checkbox"]:checked + .checkmark::before {
-        content: "✔"; /* Cambia el símbolo aquí por una X o cualquier otro símbolo que prefieras */
-    }
-    
-    /* Estilos para el texto */
-    label {
-        display: inline-block;
-        margin-bottom: 5px;
-        font-size: 16px;
-        vertical-align: middle;
-        margin-left: 10px; /* Ajusta el espaciado entre el checkbox y el texto según sea necesario */
-    }
+   /* Estilos para los checkbox redondos */
+.checkbox-container {
+    display: inline-block;
+    vertical-align: middle;
+    cursor: pointer;
+}
 
-    /* Estilos para el campo de texto */
-    .additional-info {
-        display: inline-block;
-        width: 50%; /* Ajusta el ancho del texto según sea necesario */
-        vertical-align: top;
-        margin-left: 200px; /* Ajusta el espacio entre las opciones y el texto */
-    }
+.checkbox-container input[type="checkbox"] {
+    display: none;
+}
 
-    /* Estilos para la lista */
-    ul {
-        list-style: none;
-        padding: 0;
-    }
+.checkmark {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    text-align: center;
+    line-height: 20px;
+}
 
-    /* Estilos para el contenedor principal */
-    .container {
-        margin-top: 20px; /* Ajusta el espacio superior del contenedor principal */
-    }
+.checkmark::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Arial', sans-serif; /* Cambia la fuente de iconos según tus necesidades */
+    font-size: 14px;
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkmark::before {
+    content: "✔"; /* Cambia el símbolo aquí por una X o cualquier otro símbolo que prefieras */
+}
+
+/* Estilos para el contenedor principal */
+.container5 {
+    margin-top: 20px; /* Ajusta el espacio superior del contenedor principal */
+    background-color: #f2f2f2; /* Color de fondo */
+    border-radius: 10px; /* Especifica el radio de las esquinas */
+    padding: 20px; /* Espacio interno */
+    border: 2px solid #ccc; /* Borde con color gris claro */
+    width: 30%; /* Ancho del contenedor al 30% del ancho disponible */
+    box-sizing: border-box; /* Incluir el borde y el relleno en el cálculo del tamaño total */
+    text-align: center; /* Centrar el texto dentro del contenedor */
+}
+
+/* Estilos para la lista */
+.container5 ul {
+    list-style: none; /* Eliminar el punto que marca la lista de objetos */
+    padding: 0; /* Eliminar el relleno predeterminado de la lista */
+}
+
+/* Estilos para el botón */
+button {
+    background-color: #007bff; /* Color de fondo azul */
+    color: #fff; /* Color del texto blanco */
+    padding: 10px 20px; /* Espacio interno */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Especifica el radio de las esquinas */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transición suave */
+}
+
+button:hover {
+    background-color: #0056b3; /* Cambia el color de fondo al pasar el mouse */
+}
+
 </style>
-
-<div class="container">
-    <h3>Paquete de Examenes Preventivos Generales</h3>
-    <form action="{% url 'index' %}" method="post">
-        {% csrf_token %}
-        <ul>
-            {% for subcategoria in subcategorias %}
+<div class="container5">
+    <h3>Paquete de Exámenes Preventivos Generales</h3>
+    <ul>
+        <div class="additional-info">
+            <h3>Reseña General</h3>
+            {% if reseña_general %}
+                <h7>{{ reseña_general }}</h7>
+            {% endif %}
+        </div>
+        <br>
+        {% for subcategoria in subcategorias %}
+            <form action="{% url 'agregar_al_carrito' subcategoria.id %}" method="post">
+                {% csrf_token %}
                 <li>
                     <label class="checkbox-container">
                         <input type="checkbox" name="subcategorias" value="{{ subcategoria.id }}">
@@ -88,27 +100,12 @@
                         {{ subcategoria.nombre }}
                     </label>
                 </li>
-            {% endfor %}
-        </ul>
+               
+        {% endfor %}
         <button type="submit" style="margin-top: 10px;">Agregar al carrito</button>
-        <div class="additional-info">
-            <h3>Reseña</h3>
-            <h7>Los exámenes preventivos son esenciales en la atención de la salud, ya que
-                permiten detectar enfermedades en etapas tempranas antes de que
-                aparezcan síntomas, lo que facilita un tratamiento más efectivo y pronósticos
-                favorables. Estos exámenes tienen varios propósitos, incluida la detección
-                precoz de enfermedades, la prevención de condiciones crónicas mediante la
-                identificación de factores de riesgo y cambios en el estilo de vida, así como la
-                promoción de la salud general. Además, contribuyen a reducir costos a largo
-                plazo asociados con tratamientos avanzados y mejoran la calidad de vida al
-                mantener una buena salud. Es importante seguir las recomendaciones de los
-                profesionales de la salud y realizar estos exámenes de manera regular para
-                un cuidado integral. </h7>
-        </div>
-
     </form>
+    </ul>
 </div>
-
 
 
 

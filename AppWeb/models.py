@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser,User
 from django.core.exceptions import ValidationError
 
 
@@ -33,7 +33,8 @@ def validar_rut(rut):
     else:
         return False
 
-#se hace llamado de validación de rut y se validan el resto de los campos.
+
+
 class CustomUser(AbstractUser):
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
@@ -99,14 +100,25 @@ class Examen(models.Model):
 
 
 
-
-class SubcategoriaExamen(models.Model):  # Cambié el nombre de la clase a SubcategoriaExamen
+class SubcategoriaExamen(models.Model):
     nombre = models.CharField(max_length=100)
-    examen = models.ForeignKey(Examen, related_name='subcategorias', on_delete=models.CASCADE)  # Relacionado con Examen, no con Categoria
+    examen = models.ForeignKey(Examen, related_name='subcategorias', on_delete=models.CASCADE)
+    mensaje_para_reseña = models.TextField(default='Mensaje predeterminado')
 
     def __str__(self):
         return self.nombre
+
+
+
+class CarritoDeCompras(models.Model):
+    usuario = models.ForeignKey(User, related_name='carrito', on_delete=models.CASCADE)
+    subcategorias = models.ManyToManyField(SubcategoriaExamen)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Carrito de {self.usuario.username}'
     
+
 
 
 

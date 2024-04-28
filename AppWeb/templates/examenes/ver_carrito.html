@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}
+    Carrito de Compras
+{% endblock %}
+
+{% block content %}
+    <h1>Carrito de Compras</h1>
+    
+    <h2>Productos Seleccionados:</h2>
+    {% if subcategorias_carrito %}
+        <ul>
+            {% for subcategoria in subcategorias_carrito %}
+                <li>{{ subcategoria.nombre }}</li>
+                <!-- Agregar formulario para eliminar el producto del carrito -->
+                <form action="{% url 'eliminar_del_carrito' subcategoria.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Eliminar</button>
+                </form>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay elementos en el carrito.</p>
+    {% endif %}
+    
+    <h2>Monto Total a Pagar: {{ monto_total }}</h2>
+    
+    <form action="{% url 'Examenes' %}" method="get">
+        <button type="submit">Agregar otro plan de exámenes</button>
+    </form>
+    
+    <form action="{% url 'index' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Ir a Pagar</button>
+    </form>
+{% endblock %}
