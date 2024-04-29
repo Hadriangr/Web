@@ -1,26 +1,26 @@
 from django.urls import path,include
+from .views import SignUpView
 from . import views
 from django.contrib.auth import views as auth_views
+from .views import custom_password_reset, custom_password_reset_done, custom_password_reset_confirm,ver_carrito , custom_password_reset_complete,agregar_al_carrito,eliminar_del_carrito
+
 
 urlpatterns = [
     path('', views.index, name='index'),  # Ejemplo de una URL en tu aplicación
-    path('examenes-hombre/', views.examenes_hombre, name='examenes_hombre'),
-    path('examenes-mujer/', views.examenes_mujer, name='examenes_mujer'),
-    path('cuadro-1/', views.Mcuadro_1, name='Mcuadro_1'),
-    path('cuadro-2/', views.Mcuadro_2, name='Mcuadro_2'),
-    path('cuadro-3/', views.Mcuadro_3, name='Mcuadro_3'),
-    path('cuadro-4/', views.Mcuadro_4, name='Mcuadro_4'),
-    path('cuadro-1/', views.Hcuadro_1, name='Hcuadro_1'),
-    path('cuadro-2/', views.Hcuadro_2, name='Hcuadro_2'),
-    path('cuadro-3/', views.Hcuadro_3, name='Hcuadro_3'),
-    path('cuadro-4/', views.Hcuadro_4, name='Hcuadro_4'),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('password-change/', auth_views.PasswordChangeView.as_view(), name ='password_change'),
     path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(), name ='password_change_done'),
-    path('registro/', views.register, name='registro'),
-    path('dashboard/',views.dashboard, name='dashboard'),
-    path('registro_done/', views.registro_done, name='registro_done'),
     path('examenes/', views.lista_examenes, name='Examenes'),
     path('examen/<int:examen_id>/subcategorias/', views.mostrar_subcategorias, name='mostrar_subcategorias'),
+    path('registro/', SignUpView.as_view(), name='registro'),
+    path('password_reset/', custom_password_reset, name='password_reset'),
+    path('password_reset/done/', custom_password_reset_done, name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', custom_password_reset_confirm, name='password_reset_confirm'),
+    path('reset/done/', custom_password_reset_complete, name='password_reset_complete'),
+    path('agregar_al_carrito/<int:subcategoria_id>/', agregar_al_carrito, name='agregar_al_carrito'),
+    path('eliminar_del_carrito/<int:subcategoria_id>/', eliminar_del_carrito, name='eliminar_del_carrito'),
+    path('ver_carrito/', ver_carrito, name='ver_carrito'),
+    
 ]
+

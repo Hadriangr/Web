@@ -5,10 +5,74 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Registrarse</h2>
+<div style="background-color: #b1c1e9; border-radius: 10px; padding: 20px; max-width: 400px; margin: 0 auto;">
+    <h2 style="text-align: center;">Registro</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <input type="reset" value="Limpiar">
-        <input type="submit" value="Registrarse">
+        <div style="margin-bottom: 20px;">
+            {{ form.nombre.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);"> <!-- Ancho fijo para el campo de entrada -->
+                {{ form.nombre }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.apellido.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.apellido }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.email.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.email }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.telefono_contacto.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.telefono_contacto }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.direccion.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.direccion }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.fecha_nacimiento.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.fecha_nacimiento }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.rut.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.rut }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.genero.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.genero }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.region.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.region }}
+            </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+            {{ form.comuna.label_tag }}
+            <div style="display: inline-block; width: calc(100% - 120px);">
+                {{ form.comuna }}
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <input type="reset" value="Limpiar" style="background-color: #fdcaca; border: none; padding: 10px 20px; border-radius: 5px;">
+            <input type="submit" value="Registrarse" style="background-color: #007bff; border: none; padding: 10px 20px; border-radius: 5px; color: white;">
+        </div>
+    </form>
+</div>
 {% endblock %}

@@ -18,8 +18,8 @@
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
                 <a class="navbar-brand" href="{% url 'index' %}">Mediweb</a> <!-- Enlace al inicio -->
-                <a class="navbar-brand" href="#!">Sobre Mi</a>
-                <a class="navbar-brand" href="#!">Solicitar examen</a>
+                <a class="navbar-brand" href="{% url 'index' %}">Sobre Mi</a>
+                <a class="navbar-brand" href="{% url 'Examenes' %}">Solicitar examen</a>
                 
                 {% if request.user.is_authenticated %}
                     <div class="navbar-item">
