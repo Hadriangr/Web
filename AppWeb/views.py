@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
 from django.http import HttpResponse,Http404
-from .models import PaqueteExamen,CustomUser,SubcategoriaExamen
+from .models import CustomUser,Paquete,ElementoCarrito
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import PasswordResetForm,AuthenticationForm
@@ -68,26 +68,26 @@ def user_logout(request):
 
 
 def lista_examenes(request):
-    examenes = PaqueteExamen.objects.all()
+    examenes = Paquete.objects.all()
     return render(request, 'examenes/lista_examenes.html', {'examenes': examenes})
 
 
 
-def mostrar_subcategorias(request, examen_id):
-    examen = get_object_or_404(PaqueteExamen, id=examen_id)
-    subcategorias = SubcategoriaExamen.objects.filter(examen=examen)
+# def mostrar_subcategorias(request, examen_id):
+#     examen = get_object_or_404(PaqueteExamen, id=examen_id)
+#     subcategorias = SubcategoriaExamen.objects.filter(examen=examen)
 
-    # Calcular la reseña general excluyendo los mensajes predeterminados
-    reseña_general = set()  # Utilizar un conjunto para asegurar la unicidad de los mensajes
-    for subcategoria in subcategorias:
-        if subcategoria.mensaje_para_reseña != 'Mensaje predeterminado':
-            reseña_general.add(subcategoria.mensaje_para_reseña)
+#     # Calcular la reseña general excluyendo los mensajes predeterminados
+#     reseña_general = set()  # Utilizar un conjunto para asegurar la unicidad de los mensajes
+#     for subcategoria in subcategorias:
+#         if subcategoria.mensaje_para_reseña != 'Mensaje predeterminado':
+#             reseña_general.add(subcategoria.mensaje_para_reseña)
 
-    return render(request, 'examenes/mostrar_subcategorias.html', {
-        'examen': examen,
-        'subcategorias': subcategorias,
-        'reseña_general': '\n'.join(reseña_general),  # Convertir el conjunto en una cadena separada por saltos de línea
-    })
+#     return render(request, 'examenes/mostrar_subcategorias.html', {
+#         'examen': examen,
+#         'subcategorias': subcategorias,
+#         'reseña_general': '\n'.join(reseña_general),  # Convertir el conjunto en una cadena separada por saltos de línea
+#     })
 
 
 
@@ -132,45 +132,66 @@ def custom_password_reset_complete(request):
 
 
 
-# Carrito de compras 
+# # Carrito de compras 
 
-def agregar_al_carrito(request, subcategoria_id):
+# def agregar_al_carrito(request):
+#     if request.method == 'POST':
+#         subcategorias_ids = request.POST.getlist('subcategorias')
+#         subcategorias = SubcategoriaExamen.objects.filter(id__in=subcategorias_ids)
+#         for subcategoria in subcategorias:
+#             # Agregar la subcategoría al carrito
+#             request.session['carrito'].append(subcategoria.id)
+#         # Redirigir a la página del carrito
+#         return redirect('ver_carrito')
+#     else:
+#         # Si la solicitud no es POST, lanzar un error 404
+#         raise Http404("Método de solicitud no permitido")
+
+
+
+
+# def ver_carrito(request):
+#     carrito = request.session.get('carrito', [])
+#     subcategorias_carrito = SubcategoriaExamen.objects.filter(id__in=carrito)
+    
+#     # Calcular el monto total sumando los precios de los exámenes en el carrito
+#     monto_total = subcategorias_carrito.aggregate(total=Sum('examen__precio'))['total'] or 0
+    
+#     return render(request, 'examenes/ver_carrito.html', {'subcategorias_carrito': subcategorias_carrito, 'monto_total': monto_total})
+
+
+
+
+
+# def eliminar_del_carrito(request, subcategoria_id):
+#     carrito = request.session.get('carrito', [])
+#     try:
+#         carrito.remove(subcategoria_id)
+#         request.session['carrito'] = carrito
+#     except ValueError:
+#         pass  # Manejar el caso cuando el producto no está en el carrito
+#     return redirect('ver_carrito')
+
+
+def mostrar_paquetes(request):
+    paquetes = Paquete.objects.all()
+    return render(request, 'examenes/mostrar_paquetes.html', {'paquetes': paquetes})
+
+def agregar_al_carrito(request, paquete_id):
+    paquete = Paquete.objects.get(pk=paquete_id)
     if request.method == 'POST':
-        subcategoria = get_object_or_404(SubcategoriaExamen, id=subcategoria_id)
-        
-        # Obtener el carrito de la sesión del usuario o inicializar uno vacío
-        carrito = request.session.get('carrito', [])
-        # Agregar la subcategoría al carrito
-        carrito.append(subcategoria.id)
-        # Actualizar la sesión con el nuevo carrito
-        request.session['carrito'] = carrito
-        # Redirigir a la página del carrito
-        return redirect('ver_carrito')
-    else:
-        # Si la solicitud no es POST, lanzar un error 404
-        raise Http404("Método de solicitud no permitido")
+        cantidad = int(request.POST['cantidad'])
+        elemento, creado = ElementoCarrito.objects.get_or_create(paquete=paquete)
+        elemento.cantidad += cantidad
+        elemento.save()
+    return redirect('ver_carrito')
 
-
-
+def quitar_del_carrito(request, elemento_id):
+    elemento = ElementoCarrito.objects.get(pk=elemento_id)
+    elemento.delete()
+    return redirect('ver_carrito')
 
 def ver_carrito(request):
-    carrito = request.session.get('carrito', [])
-    subcategorias_carrito = SubcategoriaExamen.objects.filter(id__in=carrito)
-    
-    # Calcular el monto total sumando los precios de los exámenes en el carrito
-    monto_total = subcategorias_carrito.aggregate(total=Sum('examen__precio'))['total'] or 0
-    
-    return render(request, 'examenes/ver_carrito.html', {'subcategorias_carrito': subcategorias_carrito, 'monto_total': monto_total})
-
-
-
-
-
-def eliminar_del_carrito(request, subcategoria_id):
-    carrito = request.session.get('carrito', [])
-    try:
-        carrito.remove(subcategoria_id)
-        request.session['carrito'] = carrito
-    except ValueError:
-        pass  # Manejar el caso cuando el producto no está en el carrito
-    return redirect('ver_carrito')
+    elementos_carrito = ElementoCarrito.objects.all()
+    total = sum(elemento.paquete.costo_fijo * elemento.cantidad for elemento in elementos_carrito)
+    return render(request, 'examenes/ver_carrito.html', {'elementos_carrito': elementos_carrito, 'total': total})

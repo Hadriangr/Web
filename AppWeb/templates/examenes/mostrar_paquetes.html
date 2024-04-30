@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Examenes
+{% endblock %}
+
+{% block content %}
+{% for paquete in paquetes %}
+    <h2>{{ paquete.nombre }}</h2>
+    <p>Costo fijo: ${{ paquete.costo_fijo }}</p>
+    <img src="{{ paquete.imagen.url }}" alt="Imagen del paquete">
+    <h3>Exámenes:</h3>
+    <form method="post" action="{% url 'agregar_al_carrito' paquete.id %}">
+        {% csrf_token %}
+        <ul>
+            {% for examen in paquete.examenes.all %}
+                <li>
+                    <input type="checkbox" id="examen_{{ examen.id }}" name="examen_{{ examen.id }}" value="{{ examen.id }}">
+                    <label for="examen_{{ examen.id }}">{{ examen.nombre }}</label>
+                </li>
+            {% endfor %}
+        </ul>
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" id="cantidad" name="cantidad" value="1" min="1">
+        <button type="submit">Agregar al carrito</button>
+    </form>
+{% endfor %}
+{% endblock %}

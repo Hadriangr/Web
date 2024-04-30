@@ -88,36 +88,28 @@ class Categoria(models.Model):
 
 
 
-class PaqueteExamen(models.Model):
+class Examen(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
-    imagen_url = models.CharField(max_length=200, null=True)
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    categoria = models.ForeignKey('categoria', related_name='examenes', on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return self.nombre
+    costo = models.DecimalField(max_digits=10, decimal_places=2)
+    imagen_url = models.CharField(max_length=200, null=True)  # Campo para la imagen del examen
 
 
-
-class SubcategoriaExamen(models.Model):
+class Paquete(models.Model):
     id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
-    examen = models.ForeignKey(PaqueteExamen, related_name='subcategorias', on_delete=models.CASCADE)
-    mensaje_para_reseña = models.TextField(default='Mensaje predeterminado')
-
-    def __str__(self):
-        return self.nombre
+    costo_fijo = models.DecimalField(max_digits=10, decimal_places=2)
+    examenes = models.ManyToManyField(Examen)
+    imagen_url = models.CharField(max_length=200, null=True)  # Campo para la imagen del paquete
 
 
+class ElementoCarrito(models.Model):
+    paquete = models.ForeignKey(Paquete, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=0)
 
-class CarritoDeCompras(models.Model):
-    usuario = models.ForeignKey(User, related_name='carrito', on_delete=models.CASCADE)
-    subcategorias = models.ManyToManyField(SubcategoriaExamen)
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f'Carrito de {self.usuario.username}'
+
+
     
 
 

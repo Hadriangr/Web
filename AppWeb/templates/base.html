@@ -19,7 +19,7 @@
             <div class="container">
                 <a class="navbar-brand" href="{% url 'index' %}">Mediweb</a> <!-- Enlace al inicio -->
                 <a class="navbar-brand" href="{% url 'index' %}">Sobre Mi</a>
-                <a class="navbar-brand" href="{% url 'Examenes' %}">Solicitar examen</a>
+                <a class="navbar-brand" href="{% url 'mostrar_paquetes' %}">Solicitar examen</a>
                 
                 {% if request.user.is_authenticated %}
                     <div class="navbar-item">

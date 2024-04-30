@@ -91,16 +91,16 @@ button:hover {
         </div>
         <br>
         {% for subcategoria in subcategorias %}
-            <form action="{% url 'agregar_al_carrito' subcategoria.id %}" method="post">
-                {% csrf_token %}
-                <li>
-                    <label class="checkbox-container">
-                        <input type="checkbox" name="subcategorias" value="{{ subcategoria.id }}">
-                        <span class="checkmark"></span>
-                        {{ subcategoria.nombre }}
-                    </label>
-                </li>
-               
+        <form action="{% url 'agregar_al_carrito' %}" method="post">
+            {% csrf_token %}
+            <li>
+                <label class="checkbox-container">
+                    <input type="checkbox" name="subcategorias" value="{{ subcategoria.id }}">
+                    <span class="checkmark"></span>
+                    {{ subcategoria.nombre }}
+                </label>
+            </li>
+        
         {% endfor %}
         <button type="submit" style="margin-top: 10px;">Agregar al carrito</button>
     </form>
