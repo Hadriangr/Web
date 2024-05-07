@@ -15,14 +15,14 @@
         <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="{% static 'css/styles.css' %}" rel="stylesheet"/>
-    </head>
+            </head>
     <body>
         <!-- Navigation-->
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href="{% url 'index' %}">Mediweb</a> <!-- Enlace al inicio -->
-                <a class="navbar-brand" href="{% url 'index' %}">Sobre Mi</a>
-                <a class="navbar-brand" href="{% url 'Examenes' %}">Solicitar examen</a>
+                <a class="navbar-brand" href="{% url 'index' %}">NuukMedica</a> <!-- Enlace al inicio -->
+                <a class="navbar-brand" href="{% url 'index' %}">Sobre Nosotros</a>
+                <a class="navbar-brand" href="{% url 'ver_categorias' %}">Solicitar examen</a>
                 
                 {% if request.user.is_authenticated %}
                     <div class="navbar-item">
@@ -86,7 +86,7 @@
             <div class="container-fluid p-0">
                     <div class="row g-0">
                         <div class="col-lg-6 order-lg-2 text-white showcase-img">
-                            <a href="{% url 'mostrar_paquetes' %}">
+                            <a href="{% url 'ver_categorias' %}">
                                 <img src="{% static 'assets/img/examen-mujer.jpg' %}" alt="Exámenes Mujer" style="width: 100%; height: auto;">
                             </a>
                         </div>
@@ -97,13 +97,13 @@
                     </div>
                     <div class="row g-0">
                         <div class="col-lg-6 text-white showcase-img">
-                            <a href="{% url 'index' %}" style="display: block; background-image: url('{% static 'assets/img/examen-hombre.jpg' %}'); background-size: cover; height: 100%;">
+                            <a href="{% url 'ver_diagnosticos' %}" style="display: block; background-image: url('{% static 'assets/img/examen-hombre.jpg' %}'); background-size: cover; height: 100%;">
                                 <!-- Asegúrate de que el enlace ocupe todo el espacio disponible -->
-                                <span class="visually-hidden">Examenes Hombre</span> <!-- Agrega un texto oculto para accesibilidad -->
+                                <span class="visually-hidden">Derivaciones</span> <!-- Agrega un texto oculto para accesibilidad -->
                             </a>
                         </div>
                         <div class="col-lg-6 my-auto showcase-text">
-                            <h2>Examenes Hombre</h2>
+                            <h2>Derivaciones</h2>
                             <p class="lead mb-0">Paquete de examenes preventivos para control de salud general, condiciones específicas y evaluación preocupacional.</p>
                         </div>
                     </div>
@@ -193,5 +193,6 @@
         <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
         <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
         <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+        
     </body>
 </html>

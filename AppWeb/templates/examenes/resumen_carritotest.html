@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Examenes
+{% endblock %}
+
+{% block content %}
+<h2>Resumen del Carrito</h2>
+<p><strong>Productos Seleccionados:</strong></p>
+<ul>
+    {% for nombre_producto in nombres_productos %}
+        <li>{{ nombre_producto }}</li>
+        <form action="{% url 'eliminar_del_carrito' producto.id %}" method="post">
+            {% csrf_token %}
+        <button type="button" class="eliminar-btn">Eliminar</button>
+        </form>
+    {% endfor %}
+</ul>
+<p><strong>Precio Total:</strong> ${{ precio_total }}</p>
+
+<form action="{% url 'ver_categorias' %}" method="get">
+    <button type="submit">Agregar más productos</button>
+</form>
+
+<form action="{% url 'pago_exitoso' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Pagar</button>
+</form>
+{% endblock %}

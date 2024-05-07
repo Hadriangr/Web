@@ -1,13 +1,14 @@
 from django.contrib import admin
-from .models import CustomUser,Paquete,Examen,ElementoCarrito
+from .models import *
 from django.contrib.admin import AdminSite
 
 
 # Register your models here.
 admin.site.register(CustomUser)
-admin.site.register(Examen)
-admin.site.register(Paquete)
-admin.site.register(ElementoCarrito)
+admin.site.register(Producto)
+admin.site.register(Categoria)
+admin.site.register(Derivacion)
+admin.site.register(Diagnostico)
 
 
 

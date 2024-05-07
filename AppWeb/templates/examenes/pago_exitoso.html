@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Lista de Paquetes
+{% endblock %}
+
+{% block content %}
+<h1>Pago Exitoso</h1>
+<p>Tu pago ha sido procesado exitosamente.</p>
+<p><a href="{% url 'pago_exitoso_pdf' %}" download>Descargar comprobante de pago (PDF)</a></p>
+{% endblock %}

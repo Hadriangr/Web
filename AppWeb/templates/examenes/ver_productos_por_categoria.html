@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Examenes
+{% endblock %}
+
+{% block content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.agregar-al-carrito').on('submit', function(event) {
+            event.preventDefault(); // Prevenir el envío del formulario normal
+
+            var form = $(this);
+            var formData = form.serialize(); // Serializar el formulario
+
+            // Enviar la solicitud AJAX
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: formData,
+                success: function(response) {
+                    // Manejar la respuesta si es necesario
+                    alert('Producto agregado al carrito');
+                },
+                error: function(xhr, status, error) {
+                    // Manejar errores si es necesario
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+
+<h1>Productos Disponibles</h1>
+<ul>
+    {% for producto in productos %}
+        <li>{{ producto.nombre }}</li>
+        <form class="agregar-al-carrito" action="{% url 'agregar_al_carrito' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="producto_id" value="{{ producto.id }}">
+            <button type="submit">Agregar al carrito</button>
+        </form>
+    {% endfor %}
+</ul>
+<a href="{% url 'ver_carrito' %}">Ver Carrito</a>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Lista de Examenes
+{% endblock %}
+{% block content %}
+<h2>Selecciona los Productos que Deseas Agregar al Carrito</h2>
+<form id="elementos"  method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Agregar al Carrito</button>
+    <input type="hidden" value="[]" id="cart">
+</form>
+<script type="text/javascript">
+    const CART_KEY = 'carrito'
+    window.onload = function () {
+        window.localStorage.removeItem(CART_KEY)
+        formDto = new Set()
+        // seleccionar valores(dom_manipulation)
+        const formDOM = document.querySelector("#elementos")
+        formDOM.addEventListener("change", (event) => {
+            const label = event.target.parentNode
+            const payload = label.innerText.trim()
+            event.target.checked ? formDto.add(payload) : formDto.delete(payload)
+            const arrayFormDto = Array.from([...formDto])
+            window.localStorage.setItem(CART_KEY, JSON.stringify(arrayFormDto))
+            const inputDOM = document.querySelector("#cart")
+            inputDOM.setAttribute("value", JSON.stringify(arrayFormDto))
+        })
+        // popular storage
+        const storage = window.localStorage.getItem(CART_KEY)
+        if (storage) {
+            const inputDOM = document.querySelector("#cart");
+            inputDOM.setAttribute("value", storage);
+        }
+    }
+</script>
+{% endblock %}

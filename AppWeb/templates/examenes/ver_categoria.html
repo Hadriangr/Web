@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Examenes
+{% endblock %}
+
+{% block content %}
+<h1>Todas las Categorías</h1>
+<ul>
+    {% for categoria in categorias %}
+        <li>
+            <a href="{% url 'ver_productos_por_categoria' categoria.id %}">
+                {{ categoria.nombre }} - Precio: {{ categoria.precio }}
+            </a>
+            {% if categoria.imagen_url %}
+                <img src="{{ categoria.imagen_url }}" alt="{{ categoria.nombre }}">
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

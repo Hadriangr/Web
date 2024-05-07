@@ -2,14 +2,15 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
 from django.http import HttpResponse,Http404
-from .models import CustomUser,Paquete,ElementoCarrito
+from .models import CustomUser,Producto,Categoria,Derivacion,Diagnostico
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import PasswordResetForm,AuthenticationForm
 from django.core.mail import send_mail
 from django.contrib import messages
-from django.db.models import Sum
-
+from django import forms
+from django.contrib.auth.decorators import login_required
+from reportlab.pdfgen import canvas
 
 
 
@@ -19,11 +20,9 @@ class SignUpView(CreateView):
     success_url = reverse_lazy('login')  # Redirigir al inicio de sesión después del registro
     template_name = 'registration/signup.html'
 
-
 # Create your views here.
 def index(request):
     return render(request, 'index.html')
-
 
 
 def examenes_hombre(request):
@@ -34,7 +33,6 @@ def examenes_hombre(request):
         {'titulo': 'Cuadro 4', 'contenido': 'Contenido del cuadro 4', 'ruta': 'Hcuadro_4'},
     ]
     return render(request, 'examenes_hombre.html', {'cuadros': cuadros})
-
 
 
 def user_login(request):
@@ -60,42 +58,11 @@ def user_login(request):
     return render(request, 'registration/login.html', {'form': form})
 
 
-
 def user_logout(request):
     logout(request)
     return redirect('index')
 
-
-
-def lista_examenes(request):
-    examenes = Paquete.objects.all()
-    return render(request, 'examenes/lista_examenes.html', {'examenes': examenes})
-
-
-
-# def mostrar_subcategorias(request, examen_id):
-#     examen = get_object_or_404(PaqueteExamen, id=examen_id)
-#     subcategorias = SubcategoriaExamen.objects.filter(examen=examen)
-
-#     # Calcular la reseña general excluyendo los mensajes predeterminados
-#     reseña_general = set()  # Utilizar un conjunto para asegurar la unicidad de los mensajes
-#     for subcategoria in subcategorias:
-#         if subcategoria.mensaje_para_reseña != 'Mensaje predeterminado':
-#             reseña_general.add(subcategoria.mensaje_para_reseña)
-
-#     return render(request, 'examenes/mostrar_subcategorias.html', {
-#         'examen': examen,
-#         'subcategorias': subcategorias,
-#         'reseña_general': '\n'.join(reseña_general),  # Convertir el conjunto en una cadena separada por saltos de línea
-#     })
-
-
-
-
 #Cambio de clave y envío de correo
-
-
-
 
 from django.core.mail import send_mail
 
@@ -131,67 +98,121 @@ def custom_password_reset_complete(request):
     return render(request, 'registration/password_reset_complete.html')
 
 
-
-# # Carrito de compras 
-
-# def agregar_al_carrito(request):
-#     if request.method == 'POST':
-#         subcategorias_ids = request.POST.getlist('subcategorias')
-#         subcategorias = SubcategoriaExamen.objects.filter(id__in=subcategorias_ids)
-#         for subcategoria in subcategorias:
-#             # Agregar la subcategoría al carrito
-#             request.session['carrito'].append(subcategoria.id)
-#         # Redirigir a la página del carrito
-#         return redirect('ver_carrito')
-#     else:
-#         # Si la solicitud no es POST, lanzar un error 404
-#         raise Http404("Método de solicitud no permitido")
-
-
-
-
-# def ver_carrito(request):
-#     carrito = request.session.get('carrito', [])
-#     subcategorias_carrito = SubcategoriaExamen.objects.filter(id__in=carrito)
+class CarritoForm(forms.Form):
+    productos = forms.ModelMultipleChoiceField(queryset=Producto.objects.all(), widget=forms.CheckboxSelectMultiple)
     
-#     # Calcular el monto total sumando los precios de los exámenes en el carrito
-#     monto_total = subcategorias_carrito.aggregate(total=Sum('examen__precio'))['total'] or 0
-    
-#     return render(request, 'examenes/ver_carrito.html', {'subcategorias_carrito': subcategorias_carrito, 'monto_total': monto_total})
+    PRECIO_FIJO_PRODUCTO = 2990
+
+    def precio_total(self):
+        
+        cantidad_productos = len(self.cleaned_data['productos'])
+        return self.PRECIO_FIJO_PRODUCTO * cantidad_productos
 
 
-
-
-
-# def eliminar_del_carrito(request, subcategoria_id):
-#     carrito = request.session.get('carrito', [])
-#     try:
-#         carrito.remove(subcategoria_id)
-#         request.session['carrito'] = carrito
-#     except ValueError:
-#         pass  # Manejar el caso cuando el producto no está en el carrito
-#     return redirect('ver_carrito')
-
-
-def mostrar_paquetes(request):
-    paquetes = Paquete.objects.all()
-    return render(request, 'examenes/mostrar_paquetes.html', {'paquetes': paquetes})
-
-def agregar_al_carrito(request, paquete_id):
-    paquete = Paquete.objects.get(pk=paquete_id)
+def carrito(request):
+    productos = Producto.objects.all()  # Obtener todos los productos disponibles
     if request.method == 'POST':
-        cantidad = int(request.POST['cantidad'])
-        elemento, creado = ElementoCarrito.objects.get_or_create(paquete=paquete)
-        elemento.cantidad += cantidad
-        elemento.save()
-    return redirect('ver_carrito')
+        # Agregar producto al carrito
+        producto_id = request.POST.get('producto_id')
+        producto = Producto.objects.get(id=producto_id)
+        # Podrías realizar validaciones adicionales aquí antes de agregar al carrito
+        request.session.setdefault('carrito', []).append(producto.id)
+        request.session.modified = True
+        return redirect('carrito')  # Redirigir nuevamente a la página del carrito después de agregar
+    else:
+        form = CarritoForm()
+    return render(request, 'examenes/carrito_test.html', {'productos': productos, 'form': form})
 
-def quitar_del_carrito(request, elemento_id):
-    elemento = ElementoCarrito.objects.get(pk=elemento_id)
-    elemento.delete()
-    return redirect('ver_carrito')
+
+def calcular_precio_total_categorias(categorias_seleccionadas):
+    precio_total = 0
+    
+    # Iterar sobre todas las categorías seleccionadas
+    for categoria in categorias_seleccionadas:
+        # Sumar el precio de cada categoría
+        precio_total += categoria.precio
+    
+    return precio_total
+
+
 
 def ver_carrito(request):
-    elementos_carrito = ElementoCarrito.objects.all()
-    total = sum(elemento.paquete.costo_fijo * elemento.cantidad for elemento in elementos_carrito)
-    return render(request, 'examenes/ver_carrito.html', {'elementos_carrito': elementos_carrito, 'total': total})
+    carrito = request.session.get('carrito', [])
+    print("IDs de productos en el carrito:", carrito)  # Imprimir los IDs de los productos
+    ids_productos_validos = [id for id in carrito if isinstance(id, int)]
+    productos_en_carrito = Producto.objects.filter(id__in=ids_productos_validos)
+    nombres_productos = [producto.nombre for producto in productos_en_carrito]
+    categorias_seleccionadas = set(producto.categoria for producto in productos_en_carrito)
+    precio_total = calcular_precio_total_categorias(categorias_seleccionadas)
+    return render(request, 'examenes/resumen_carritotest.html', {'categoria': Categoria, 'nombres_productos': nombres_productos, 'precio_total': precio_total})
+
+
+
+def agregar_al_carrito(request):
+    if request.method == 'POST':
+        producto_id = request.POST.get('producto_id')
+        producto = get_object_or_404(Producto, id=producto_id)  # Verificar si el producto existe
+        if 'carrito' not in request.session:
+            request.session['carrito'] = []
+        if producto.id not in request.session['carrito']:  # Evitar duplicados en el carrito
+            request.session['carrito'].append(producto.id)
+            request.session.modified = True
+    return redirect('carrito') 
+
+
+def eliminar_del_carrito(request, producto_id):
+    # Obtener el carrito de compras del usuario desde la sesión
+    carrito = request.session.get('carrito', [])
+    
+    # Verificar si el producto está en el carrito
+    if producto_id in carrito:
+        # Eliminar el producto del carrito
+        carrito.remove(producto_id)
+        
+        # Actualizar el carrito en la sesión
+        request.session['carrito'] = carrito
+
+    return redirect('ver_carrito')
+
+def pago_exitoso(request):
+    # Obtener nombre de usuario de la sesión
+    nombre_usuario = request.user.username if request.user.is_authenticated else "Usuario Anónimo"
+
+    # Obtener productos seleccionados de la sesión
+    productos_ids = request.session.get('carrito', [])
+    productos_agregados = Producto.objects.filter(id__in=productos_ids)
+
+
+    # Generar PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="pago_exitoso.pdf"'
+    p = canvas.Canvas(response)
+    p.drawString(100, 800, "Paciente " + nombre_usuario)
+    p.drawString(100, 780,  productos_agregados[0].categoria.nombre + ": ")  # Accede al nombre de la categoría del primer producto
+    y = 740
+    for producto in productos_agregados:
+        p.drawString(120, y, producto.nombre)
+        y -= 20
+    p.save()
+    return response
+
+
+def ver_categorias(request):
+    categorias = Categoria.objects.all()
+    return render(request, 'examenes/ver_categoria.html', {'categorias': categorias})
+
+def ver_productos_por_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id=categoria_id)
+    productos = Producto.objects.filter(categoria=categoria)
+    return render(request, 'examenes/ver_productos_por_categoria.html', {'categoria': categoria, 'productos': productos})
+
+
+
+def ver_derivaciones(request):
+    derivaciones = Derivacion.objects.all()
+    return render(request, 'derivaciones/derivaciones.html', {'derivaciones': derivaciones})
+
+
+def ver_diagnosticos(request):
+    diagnosticos = Diagnostico.objects.all()  # Recupera todos los diagnósticos de la base de datos
+    return render(request, 'derivaciones/diagnostico.html', {'diagnosticos': diagnosticos})

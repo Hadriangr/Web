@@ -79,40 +79,59 @@ class CustomUser(AbstractUser):
             raise ValidationError({'rut': 'El RUT ingresado no es válido.'})
 
 
+class Derivacion(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True)
+    precio = models.DecimalField(max_digits=10, decimal_places=1)
+    imagen_url = models.CharField(max_length=200, null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre
+
+    
+class Diagnostico(models.Model):
+    nombre = models.CharField(max_length=100)
+    Derivacion = models.ForeignKey(Derivacion, on_delete=models.CASCADE, null=True, blank=True, default=None)
+
+
+    def __str__(self):
+        return self.nombre
+
+   
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True)  # Campo opcional para descripción de la categoría
+    precio = models.DecimalField(max_digits=10, decimal_places=1)
+    imagen_url = models.CharField(max_length=200, null=True, blank=True)
+    def __str__(self):
+        return self.nombre
+
+
+
+
+class Producto(models.Model):
+    nombre = models.CharField(max_length=100)
+    categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, null=True, blank=True, default=None)  # Cambiar default=None temporalmente
 
     def __str__(self):
         return self.nombre
 
 
 
-class Examen(models.Model):
-    id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-    costo = models.DecimalField(max_digits=10, decimal_places=2)
-    imagen_url = models.CharField(max_length=200, null=True)  # Campo para la imagen del examen
+class Carrito(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    productos = models.ManyToManyField('Producto', through='ItemCarrito')
+    creado_en = models.DateTimeField(auto_now_add=True)
+    modificado_en = models.DateTimeField(auto_now=True)
 
+class ItemCarrito(models.Model):
+    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
 
-class Paquete(models.Model):
-    id = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=100)
-    costo_fijo = models.DecimalField(max_digits=10, decimal_places=2)
-    examenes = models.ManyToManyField(Examen)
-    imagen_url = models.CharField(max_length=200, null=True)  # Campo para la imagen del paquete
-
-
-class ElementoCarrito(models.Model):
-    paquete = models.ForeignKey(Paquete, on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField(default=0)
-
-
-
-
+    def __str__(self):
+        return f"{self.cantidad} x {self.producto.nombre} en el carrito de {self.carrito.usuario.username}"
     
-
-
-
 
 
