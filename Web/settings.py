@@ -131,13 +131,8 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 
 
-"""AUTH_USER_MODEL = 'AppWeb.CustomUser'
+AUTH_USER_MODEL = 'AppWeb.CustomUser'
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'AppWeb.backends.EmailAuthBackend',  # Ruta de tu backend personalizado
-)
-"""
 
 load_dotenv()
 

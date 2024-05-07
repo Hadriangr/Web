@@ -13,7 +13,7 @@ urlpatterns = [
     path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(), name ='password_change_done'),
     path('examenes/', views.lista_examenes, name='Examenes'),
     path('examen/<int:examen_id>/subcategorias/', views.mostrar_subcategorias, name='mostrar_subcategorias'),
-    path('registro/', SignUpView.as_view(), name='registro'),
+    path('registro/', views.register, name='registro'),
     path('password_reset/', custom_password_reset, name='password_reset'),
     path('password_reset/done/', custom_password_reset_done, name='password_reset_done'),
     path('reset/<uidb64>/<token>/', custom_password_reset_confirm, name='password_reset_confirm'),
@@ -22,6 +22,7 @@ urlpatterns = [
     path('mostrar_carrito/', mostrar_carrito, name='mostrar_carrito'),
     path('eliminar_del_carrito/<int:subcategoria_id>/', eliminar_del_carrito, name='eliminar_del_carrito'),
     path('ver_carrito/', ver_carrito, name='ver_carrito'),
+    path('registro_test/', views.register, name='registro_test'),
     
 ]
 

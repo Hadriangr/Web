@@ -1,6 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser,User
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+from django.conf import settings
+from django.contrib.auth.base_user import BaseUserManager
 
 
 #Validación de rut
@@ -34,11 +36,28 @@ def validar_rut(rut):
         return False
 
 
+class CustomUserManager(BaseUserManager):
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if not email:
+            raise ValueError('The Email field must be set')
+        
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+
 
 class CustomUser(AbstractUser):
-    nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    nombre = models.CharField('Nombre', max_length=100)
+    apellido = models.CharField('Apellido', max_length=100)
+    email = models.EmailField('Correo electronico', unique=True)
+    region = models.CharField('Region', max_length=100)
+    comuna = models.CharField('Comuna', max_length=100)
     direccion = models.CharField(max_length=255)
     telefono_contacto = models.CharField(max_length=20)
     fecha_nacimiento = models.DateField()
@@ -48,8 +67,9 @@ class CustomUser(AbstractUser):
         ('F', 'Femenino'),
         ('O', 'Otro'),
     ))
-    region = models.CharField(max_length=100)
-    comuna = models.CharField(max_length=100)
+    
+
+    objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre', 'apellido', 'direccion', 'telefono_contacto', 'fecha_nacimiento', 'rut', 'genero', 'region', 'comuna']
@@ -111,7 +131,7 @@ class SubcategoriaExamen(models.Model):
 
 
 class CarritoDeCompras(models.Model):
-    usuario = models.ForeignKey(User, related_name='carrito', on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='carrito', on_delete=models.CASCADE)
     subcategorias = models.ManyToManyField(SubcategoriaExamen)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 

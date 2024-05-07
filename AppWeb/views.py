@@ -43,7 +43,7 @@ def user_login(request):
         if form.is_valid():
             cd = form.cleaned_data
             # Aquí utilizamos el campo de email en lugar del campo de username
-            username_or_email = cd.get('username')  # Aquí mantenemos 'username' para la compatibilidad
+            username_or_email = cd.get('username')  # Este campo aún se llama 'username' en tu formulario de inicio de sesión
             password = cd['password']
             user = authenticate(request, username=username_or_email, password=password)
             if user is not None:
@@ -66,6 +66,20 @@ def user_logout(request):
     logout(request)
     return redirect('index')
 
+
+
+def register(request):
+    if request.method == 'POST':
+        user_form = CustomUserCreationForm(request.POST)
+        if user_form.is_valid():
+            user = user_form.save(commit=False)
+            user.username = user_form.cleaned_data.get('email')  # Usar el correo electrónico como nombre de usuario
+            user.save()
+            messages.success(request, '¡Registro exitoso! Por favor, inicia sesión con tu nueva cuenta.')  # Mensaje de éxito
+            return redirect('login')  # Redireccionar al usuario a la página de inicio de sesión
+    else:
+        user_form = CustomUserCreationForm()
+    return render(request, 'registration/registro.html', {'user_form': user_form})
 
 
 
