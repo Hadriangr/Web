@@ -27,8 +27,8 @@
                 {% if request.user.is_authenticated %}
                     <div class="navbar-item">
                         <p>
-                            Hola {{ request.user.first_name|default:request.user.username }}, 
-                            <a href="{% url 'logout' %}">Cerrar sesión</a>
+                            Hola {{ request.user.nombre}} {{ request.user.apellido |default:request.user.username }} <br>
+                            <a href="{% url 'logout' %}" class="btn btn-outline-danger">Cerrar sesión</a>
                         </p>
                     </div>
                 {% else %}

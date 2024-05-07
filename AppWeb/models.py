@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
+from django.utils import timezone
 
 
 #Validación de rut
@@ -98,7 +99,10 @@ class CustomUser(AbstractUser):
         if not validar_rut(self.rut):
             raise ValidationError({'rut': 'El RUT ingresado no es válido.'})
 
-
+        edad_minima = 18
+        edad_actual = timezone.now().date().year - self.fecha_nacimiento.year
+        if edad_actual < edad_minima:
+            raise ValidationError({'fecha_nacimiento': 'Debes ser mayor de 18 años para registrarte.'})
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
