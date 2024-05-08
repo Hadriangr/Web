@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Mi cuenta
+{% endblock %}
+
+{% block content %}
+
+<h1>Bienvenido, {{ usuario.nombre }}</h1>
+<p>Correo electrónico: {{ usuario.email }}</p>
+
+<h2>Historial de compras</h2>
+<ul>
+{% for compra in compras %}
+    <li>{{ compra.fecha }} - {{ compra.producto }} - {{ compra.precio }}</li>
+{% empty %}
+    <li>No se encontraron compras</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'editar_perfil' %}">Editar perfil</a>
+
+{% endblock %}

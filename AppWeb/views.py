@@ -9,7 +9,7 @@ from django.contrib.auth.forms import PasswordResetForm,AuthenticationForm
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.db.models import Sum
-
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -204,3 +204,27 @@ def eliminar_del_carrito(request, subcategoria_id):
     except ValueError:
         pass  # Manejar el caso cuando el producto no está en el carrito
     return redirect('ver_carrito')
+
+
+
+# Cuenta y editarla 
+
+@login_required
+def mi_cuenta(request):
+    usuario = request.user
+    #compras = Compra.objects.filter(usuario=usuario)
+    return render(request, 'cuenta/mi_cuenta.html', {'usuario': usuario})
+
+
+@login_required
+def editar_perfil(request):
+    usuario = request.user
+    if request.method == 'POST':
+        usuario.direccion = request.POST.get('direccion')
+        usuario.comuna = request.POST.get('comuna')
+        usuario.region = request.POST.get('region')
+        usuario.telefono_contacto = request.POST.get('telefono')
+        usuario.email = request.POST.get('correo')
+        usuario.save()
+        return redirect('mi_cuenta')
+    return render(request, 'cuenta/editar_perfil.html', {'usuario': usuario})

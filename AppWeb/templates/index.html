@@ -27,14 +27,15 @@
                 {% if request.user.is_authenticated %}
                     <div class="navbar-item">
                         <p>
-                            Hola {{ request.user.nombre}} {{ request.user.apellido |default:request.user.username }} <br>
-                            <a href="{% url 'logout' %}" class="btn btn-outline-danger">Cerrar sesión</a>
-                        </p>
-                    </div>
+                            Hola {{ request.user.first_name|default:request.user.username }}, 
+                            <a href="{% url 'mi_cuenta' %}" class="btn btn-outline-dark">Mi cuenta</a> 
+                            <a href="{% url 'logout' %}" class="btn btn-outline-secondary">Cerrar sesión</a> 
                 {% else %}
-                    <a class="btn btn-primary" href="{% url 'login' %}">Iniciar Sesión</a>
+                    <a class="btn btn-outline-primary" href="{% url 'login' %}">Iniciar Sesión</a> 
                 {% endif %}
             </div>
+        </nav>
+        
         </nav>
         <!-- Masthead-->
         <header class="masthead">
