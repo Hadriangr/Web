@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Editar perfil
+{% endblock %}
+
+{% block content %}
+
+<h1>Editar perfil</h1>
+<form method="post">
+    {% csrf_token %}
+    <label for="direccion">Dirección:</label><br>
+    <input type="text" id="direccion" name="direccion" value="{{ usuario.direccion }}"><br>
+    
+    <label for="comuna">Comuna:</label><br>
+    <input type="text" id="comuna" name="comuna" value="{{ usuario.comuna }}"><br>
+    
+    <label for="region">Región:</label><br>
+    <input type="text" id="region" name="region" value="{{ usuario.region }}"><br>
+    
+    <label for="telefono">Número de teléfono:</label><br>
+    <input type="text" id="telefono" name="telefono" value="{{ usuario.telefono_contacto }}"><br>
+    
+    <label for="correo">Correo electrónico:</label><br>
+    <input type="email" id="correo" name="correo" value="{{ usuario.email }}"><br>
+    
+    <button type="submit">Guardar cambios</button>
+</form>
+
+{% endblock %}

@@ -1,26 +1,16 @@
-{% extends "base.html" %}
-{% block title %} Crear cuenta{% endblock %}
-{% block content %}
-<h1> Crear una cuenta</h1>
-<p> Utilizar el formulario para crear su cuenta </p>
-<form action="{% url 'registro_done' %}" method="post">
-  {% csrf_token %}
-  {{ user_form.nombre.label_tag }} {{ user_form.nombre }} <br>
-  {{ user_form.apellido.label_tag }} {{ user_form.apellido }} <br>
-  {{ user_form.email.label_tag }} {{ user_form.email }} <br>
-  {{ user_form.direccion.label_tag }} {{ user_form.direccion }} <br>
-  {{ user_form.telefono_contacto.label_tag }} {{ user_form.telefono_contacto }} <br>
-  {{ user_form.fecha_nacimiento.label_tag }} {{ user_form.fecha_nacimiento }} <br>
-  {{ user_form.rut.label_tag }} {{ user_form.rut }} <br>
-  {{ user_form.genero.label_tag }} {{ user_form.genero }} <br>  <!-- Campo de género -->
-  {{ user_form.region.label_tag }} {{ user_form.region }} <br>
-  {{ user_form.comuna.label_tag }} {{ user_form.comuna }} <br>
-  {{ user_form.password1.label_tag }} {{ user_form.password1 }} <br>  <!-- Campo de contraseña -->
-  {{ user_form.password2.label_tag }} {{ user_form.password2 }} <br>  <!-- Confirmación de contraseña -->
-  <input type="submit" value="Create my account" class="button mt-2 is-link">
-  <input type="reset" value="Limpiar campos" class="button">
-</form>
+{% extends 'base.html' %}
+{% load static %}
 
-
+{% block title %}
+    Lista de Examenes
 {% endblock %}
 
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    {{ user_form.as_p }}
+    <button type="submit">Registrarse</button>
+</form>
+
+{% endblock %}
