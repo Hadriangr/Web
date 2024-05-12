@@ -2,29 +2,63 @@
 {% load static %}
 
 {% block title %}
-    Lista de Examenes
+    Resumen del Carrito
 {% endblock %}
 
 {% block content %}
-<h2>Resumen del Carrito</h2>
-<p><strong>Productos Seleccionados:</strong></p>
+<h1>Resumen del Carrito</h1>
+
+<!-- Mostrar ítems de Categoría -->
+<h2>Examenes:</h2> <br>
 <ul>
-    {% for nombre_producto in nombres_productos %}
-        <li>{{ nombre_producto }}</li>
-        <form action="{% url 'eliminar_del_carrito' producto.id %}" method="post">
-            {% csrf_token %}
-        <button type="button" class="eliminar-btn">Eliminar</button>
-        </form>
+    {% for categoria, items in items_por_categoria.items %}
+    <h3>{{ categoria.nombre }}</h3>
+    <ul>
+        {% for item in items %}
+        <li>
+            {{ item.nombre }} 
+            <form class="eliminar-form" action="{% url 'eliminar_producto' item.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Eliminar</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
     {% endfor %}
+    <h4>Precio Total de Exámenes: {{ precio_total_categorias }}</h4>
 </ul>
-<p><strong>Precio Total:</strong> ${{ precio_total }}</p>
 
-<form action="{% url 'ver_categorias' %}" method="get">
-    <button type="submit">Agregar más productos</button>
-</form>
+<!-- Mostrar ítems de Derivación -->
+<h2>Derivaciones:</h2> <br>
+<ul>
+    {% for derivacion, items_derivacion in items_por_derivacion.items %}
+    <h3>{{ derivacion.nombre }}</h3>
+    <ul>
+        {% for item in items_derivacion %}
+        <li>
+            {{ item.nombre }} 
+            <form class="eliminar-form" action="{% url 'eliminar_derivacion' item.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Eliminar</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+    <h4>Precio Total de Derivaciones: {{ precio_total_derivaciones }}</h4>
+</ul>
 
-<form action="{% url 'pago_exitoso' %}" method="post">
+<h4>Precio Total del Carrito: {{ precio_total }}</h4>
+
+<!-- Botón de Pagar -->
+<form method="get" action="{% url 'pago_exitoso' %}">
     {% csrf_token %}
-    <button type="submit">Pagar</button>
+    <button type="submit" {% if items_por_categoria|length == 0 and items_por_derivacion|length == 0 %}disabled{% endif %}>Pagar</button>
 </form>
+
+
+<!-- Formulario de Inicio de Sesión / Registro -->
+<div>
+
+</div>
 {% endblock %}

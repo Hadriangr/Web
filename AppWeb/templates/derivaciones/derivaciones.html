@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-    Lista de Examenes
+    Lista de Derivaciones
 {% endblock %}
 
 {% block content %}
@@ -10,7 +10,7 @@
 <ul>
     {% for derivacion in derivaciones %}
         <li>
-            <a href="{% url 'ver_productos_por_categoria' derivacion.id %}">
+            <a href="{% url 'ver_diagnosticos' derivacion.id %}">
                 {{ derivacion.nombre }} - Precio: {{ derivacion.precio }}
             </a>
             {% if derivacion.imagen_url %}

@@ -1,8 +1,8 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
-from django.http import HttpResponse,Http404
-from .models import CustomUser,Producto,Categoria,Derivacion,Diagnostico
+from django.http import HttpResponse
+from .models import CustomUser,Categoria,Derivacion,Item,Carrito,ItemCarrito
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import PasswordResetForm,AuthenticationForm
@@ -11,6 +11,7 @@ from django.contrib import messages
 from django import forms
 from django.contrib.auth.decorators import login_required
 from reportlab.pdfgen import canvas
+from django.template.loader import get_template
 
 
 
@@ -99,7 +100,7 @@ def custom_password_reset_complete(request):
 
 
 class CarritoForm(forms.Form):
-    productos = forms.ModelMultipleChoiceField(queryset=Producto.objects.all(), widget=forms.CheckboxSelectMultiple)
+    productos = forms.ModelMultipleChoiceField(queryset=Item.objects.all(), widget=forms.CheckboxSelectMultiple)
     
     PRECIO_FIJO_PRODUCTO = 2990
 
@@ -110,18 +111,16 @@ class CarritoForm(forms.Form):
 
 
 def carrito(request):
-    productos = Producto.objects.all()  # Obtener todos los productos disponibles
-    if request.method == 'POST':
-        # Agregar producto al carrito
-        producto_id = request.POST.get('producto_id')
-        producto = Producto.objects.get(id=producto_id)
-        # Podrías realizar validaciones adicionales aquí antes de agregar al carrito
-        request.session.setdefault('carrito', []).append(producto.id)
-        request.session.modified = True
-        return redirect('carrito')  # Redirigir nuevamente a la página del carrito después de agregar
+    # Obtener todos los elementos en el carrito del usuario
+    if request.user.is_authenticated:
+        carrito_usuario, _ = Carrito.objects.get_or_create(usuario=request.user)
+        elementos_en_carrito = ItemCarrito.objects.filter(carrito=carrito_usuario)
     else:
-        form = CarritoForm()
-    return render(request, 'examenes/carrito_test.html', {'productos': productos, 'form': form})
+        # Manejo de usuarios anónimos, si es necesario
+        elementos_en_carrito = []
+
+    return render(request, 'examenes/carrito_test.html', {'elementos_en_carrito': elementos_en_carrito})
+
 
 
 def calcular_precio_total_categorias(categorias_seleccionadas):
@@ -136,65 +135,211 @@ def calcular_precio_total_categorias(categorias_seleccionadas):
 
 
 
-def ver_carrito(request):
-    carrito = request.session.get('carrito', [])
-    print("IDs de productos en el carrito:", carrito)  # Imprimir los IDs de los productos
-    ids_productos_validos = [id for id in carrito if isinstance(id, int)]
-    productos_en_carrito = Producto.objects.filter(id__in=ids_productos_validos)
-    nombres_productos = [producto.nombre for producto in productos_en_carrito]
-    categorias_seleccionadas = set(producto.categoria for producto in productos_en_carrito)
-    precio_total = calcular_precio_total_categorias(categorias_seleccionadas)
-    return render(request, 'examenes/resumen_carritotest.html', {'categoria': Categoria, 'nombres_productos': nombres_productos, 'precio_total': precio_total})
+
+def calcular_precio_total(derivaciones_seleccionadas):
+    precio_total = 0
+    
+    # Sumar el precio de todas las derivaciones seleccionadas
+    for derivacion in derivaciones_seleccionadas:
+        precio_total += derivacion.precio
+    
+    return precio_total
+
+from django.db.models import Sum
+
+def resumen_carrito(request):
+    # Obtener todos los items en el carrito del usuario actual 
+    items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=request.user) 
+    
+    # Obtener todas las categorías únicas en el carrito
+    categorias = Categoria.objects.filter(item__in=items_carrito).distinct()
+    
+    # Crear un diccionario para almacenar los items agrupados por categoría
+    items_por_categoria = {}
+    precio_total_categorias = 0
+    
+    # Iterar sobre cada categoría y obtener los items asociados
+    for categoria in categorias:
+        items_categoria = items_carrito.filter(categoria=categoria)
+        items_por_categoria[categoria] = items_categoria
+        precio_total_categorias += items_categoria.aggregate(Sum('categoria__precio'))['categoria__precio__sum'] or 0
+    
+    # Obtener todas las derivaciones únicas en el carrito
+    derivaciones = Derivacion.objects.filter(item__in=items_carrito).distinct()
+    
+    # Crear un conjunto para mantener un registro de las derivaciones procesadas
+    derivaciones_procesadas = set()
+    precio_total_derivaciones = 0
+    
+    # Crear un diccionario para almacenar los ítems agrupados por derivación
+    items_por_derivacion = {}
+    
+    # Iterar sobre cada derivación y obtener el precio de cada una
+    for derivacion in derivaciones:
+        # Verificar si ya se ha procesado esta derivación
+        if derivacion in derivaciones_procesadas:
+            continue
+        
+        # Obtener los ítems asociados a esta derivación
+        items_derivacion = items_carrito.filter(derivacion=derivacion)
+        
+        # Agregar los ítems de la derivación al diccionario
+        items_por_derivacion[derivacion] = items_derivacion
+        
+        # Calcular el precio total de la derivación (solo una vez)
+        precio_total_derivacion = derivacion.precio
+        
+        # Agregar el precio total de la derivación al precio total general
+        precio_total_derivaciones += precio_total_derivacion
+        
+        # Agregar la derivación al conjunto de derivaciones procesadas
+        derivaciones_procesadas.add(derivacion)
+    
+    # Calcular el precio total del carrito
+    precio_total = precio_total_categorias + precio_total_derivaciones
+    
+    return render(request, 'examenes/resumen_carritotest.html', {
+        'items_por_categoria': items_por_categoria,
+        'items_por_derivacion': items_por_derivacion,
+        'precio_total_categorias': precio_total_categorias,
+        'precio_total_derivaciones': precio_total_derivaciones,
+        'precio_total': precio_total,
+    })
+
+
+
+
+
 
 
 
 def agregar_al_carrito(request):
     if request.method == 'POST':
-        producto_id = request.POST.get('producto_id')
-        producto = get_object_or_404(Producto, id=producto_id)  # Verificar si el producto existe
-        if 'carrito' not in request.session:
-            request.session['carrito'] = []
-        if producto.id not in request.session['carrito']:  # Evitar duplicados en el carrito
-            request.session['carrito'].append(producto.id)
-            request.session.modified = True
-    return redirect('carrito') 
-
-
-def eliminar_del_carrito(request, producto_id):
-    # Obtener el carrito de compras del usuario desde la sesión
-    carrito = request.session.get('carrito', [])
-    
-    # Verificar si el producto está en el carrito
-    if producto_id in carrito:
-        # Eliminar el producto del carrito
-        carrito.remove(producto_id)
+        elemento_id = request.POST.get('elemento_id')
+        tipo = request.POST.get('tipo')
         
-        # Actualizar el carrito en la sesión
-        request.session['carrito'] = carrito
+        # Obtener el elemento (Producto o Diagnostico) según el tipo y el ID
+        elemento = get_object_or_404(Item, id=elemento_id)
+        
+        # Obtener el carrito del usuario o crear uno nuevo si no existe
+        if request.user.is_authenticated:
+            carrito_usuario, _ = Carrito.objects.get_or_create(usuario=request.user)
+        else:
+            # Manejo de usuarios anónimos, si es necesario
+            pass
 
-    return redirect('ver_carrito')
-
-def pago_exitoso(request):
-    # Obtener nombre de usuario de la sesión
-    nombre_usuario = request.user.username if request.user.is_authenticated else "Usuario Anónimo"
-
-    # Obtener productos seleccionados de la sesión
-    productos_ids = request.session.get('carrito', [])
-    productos_agregados = Producto.objects.filter(id__in=productos_ids)
+        # Verificar si el elemento ya está en el carrito del usuario
+        if not ItemCarrito.objects.filter(carrito=carrito_usuario, item=elemento).exists():
+            # Agregar el elemento al carrito del usuario
+            ItemCarrito.objects.create(carrito=carrito_usuario, item=elemento)
+            request.session.modified = True
+    
+    return redirect('resumen_carrito')
 
 
-    # Generar PDF
+
+def eliminar_producto(request, item_id):
+    # Obtener el item del carrito
+    item_carrito = get_object_or_404(ItemCarrito, item_id=item_id, carrito__usuario=request.user)
+
+    # Eliminar el item del carrito
+    item_carrito.delete()
+
+    # Mostrar un mensaje de éxito
+    messages.success(request, "El item se ha eliminado correctamente del carrito.")
+
+    # Redireccionar a la página del resumen del carrito
+    return redirect('resumen_carrito')
+
+
+def eliminar_derivacion(request, item_id):
+    # Obtener la derivacion del carrito
+    derivacion_carrito = get_object_or_404(ItemCarrito, item_id=item_id, carrito__usuario=request.user)
+
+    # Eliminar la derivacion del carrito
+    derivacion_carrito.delete()
+
+    # Mostrar un mensaje de éxito
+    messages.success(request, "La derivacion se ha eliminado correctamente del carrito.")
+
+    # Redireccionar a la página del resumen del carrito
+    return redirect('resumen_carrito')
+
+
+def generar_pdf_productos(productos_por_categoria):
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="pago_exitoso.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
     p = canvas.Canvas(response)
-    p.drawString(100, 800, "Paciente " + nombre_usuario)
-    p.drawString(100, 780,  productos_agregados[0].categoria.nombre + ": ")  # Accede al nombre de la categoría del primer producto
-    y = 740
-    for producto in productos_agregados:
-        p.drawString(120, y, producto.nombre)
-        y -= 20
+    y = 800
+    for categoria, items in productos_por_categoria.items():
+        if items:
+            p.drawString(100, y, f'Categoría: {categoria.nombre}')
+            y -= 20
+            for item_carrito in items:
+                p.drawString(120, y, item_carrito.item.nombre)  # Acceder al nombre del item asociado al ItemCarrito
+                y -= 20
     p.save()
     return response
+
+
+
+def generar_pdf_derivaciones(derivaciones_por_categoria):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="derivaciones.pdf"'
+    p = canvas.Canvas(response)
+    y = 800
+    for derivacion, items in derivaciones_por_categoria.items():
+        if items:
+            p.drawString(100, y, f'Derivación: {derivacion.nombre}')
+            y -= 20
+            for item_carrito in items:
+                p.drawString(120, y, item_carrito.item.nombre)  # Acceder al nombre del item asociado al ItemCarrito
+                y -= 20
+    p.save()
+    return response
+
+@login_required
+def pago_exitoso(request):
+   carrito_usuario = request.user.carrito_set.first()
+
+   if carrito_usuario:
+        # Organizar los productos y derivaciones por categoría
+        categorias = Categoria.objects.all()
+        productos_por_categoria = {}
+        for categoria in categorias:
+            productos_por_categoria[categoria] = ItemCarrito.objects.filter(item__categoria=categoria, carrito=carrito_usuario)
+        
+        derivaciones = Derivacion.objects.all()
+        derivaciones_por_categoria = {}
+        for derivacion in derivaciones:
+            derivaciones_por_categoria[derivacion] = ItemCarrito.objects.filter(item__derivacion=derivacion, carrito=carrito_usuario)
+
+        # Generar PDFs con los productos organizados por categoría y derivación
+        productos_pdf = generar_pdf_productos(productos_por_categoria)
+        derivaciones_pdf = generar_pdf_derivaciones(derivaciones_por_categoria)
+        
+        # Preparar la respuesta con los PDFs adjuntos
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="productos_y_derivaciones.pdf"'
+        
+        # Escribir el contenido de cada PDF en la respuesta
+        response.write(productos_pdf.content)
+        response.write(derivaciones_pdf.content)
+
+        # Renderizar el HTML de pago_exitoso.html y enviarlo
+        return response
+
+   else:
+        # Manejar el caso donde el usuario no tiene un carrito asociado
+        return HttpResponse("No se encontró el carrito del usuario")
+
+
+
+
+
+
+
+
 
 
 def ver_categorias(request):
@@ -203,7 +348,7 @@ def ver_categorias(request):
 
 def ver_productos_por_categoria(request, categoria_id):
     categoria = get_object_or_404(Categoria, id=categoria_id)
-    productos = Producto.objects.filter(categoria=categoria)
+    productos = Item.objects.filter(categoria=categoria)
     return render(request, 'examenes/ver_productos_por_categoria.html', {'categoria': categoria, 'productos': productos})
 
 
@@ -213,6 +358,7 @@ def ver_derivaciones(request):
     return render(request, 'derivaciones/derivaciones.html', {'derivaciones': derivaciones})
 
 
-def ver_diagnosticos(request):
-    diagnosticos = Diagnostico.objects.all()  # Recupera todos los diagnósticos de la base de datos
-    return render(request, 'derivaciones/diagnostico.html', {'diagnosticos': diagnosticos})
+def ver_diagnosticos(request, derivacion_id):
+    derivacion = get_object_or_404(Derivacion, id=derivacion_id)
+    diagnosticos = Item.objects.filter(derivacion=derivacion)
+    return render(request, 'derivaciones/diagnostico.html', {'derivacion': derivacion, 'diagnosticos': diagnosticos})
