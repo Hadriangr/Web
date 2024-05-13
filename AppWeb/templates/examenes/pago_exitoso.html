@@ -6,8 +6,13 @@
 {% endblock %}
 
 {% block content %}
-<h1>Pago Exitoso</h1>
-<p>Tu pago ha sido procesado exitosamente.</p>
-<p><a href="{% url 'pago_exitoso_productos_pdf' %}" download>Descargar comprobante de productos (PDF)</a></p>
-<p><a href="{% url 'pago_exitoso_derivaciones_pdf' %}" download>Descargar comprobante de derivaciones (PDF)</a></p>
+
+<h1>PAGO EXITOSO</h1>
+<p>¡Gracias por su compra!</p>
+
+<h2>Descargar PDFs:</h2>
+<ul>
+    <li><a href="{% url 'generar_pdf_productos' %}" target="_blank">Descargar productos PDF</a></li>
+    <li><a href="{% url 'generar_pdf_derivaciones' %}" target="_blank">Descargar derivaciones PDF</a></li>
+</ul>
 {% endblock %}

@@ -21,9 +21,9 @@ urlpatterns = [
     path('eliminar-derivacion/<int:item_id>/', eliminar_derivacion, name='eliminar_derivacion'),
     path('derivaciones', views.ver_derivaciones, name='derivaciones'),
     path('ver_diagnosticos/<int:derivacion_id>/', ver_diagnosticos, name='ver_diagnosticos'),
-    path('pago_exitoso/productos_pdf/', generar_pdf_productos, name='pago_exitoso_productos_pdf'),
-    path('pago_exitoso/derivaciones_pdf/', generar_pdf_derivaciones, name='pago_exitoso_derivaciones_pdf'),
     path('resumen_carrito/', views.resumen_carrito, name='resumen_carrito'),
     path('carrito/', views.carrito, name='carrito'),
+    path('generar-pdf-productos/', views.generar_pdf_productos, name='generar_pdf_productos'),
+    path('generar-pdf-derivaciones/', views.generar_pdf_derivaciones, name='generar_pdf_derivaciones'),
 ]
 

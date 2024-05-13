@@ -266,77 +266,72 @@ def eliminar_derivacion(request, item_id):
     return redirect('resumen_carrito')
 
 
-def generar_pdf_productos(productos_por_categoria):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
-    p = canvas.Canvas(response)
-    y = 800
-    for categoria, items in productos_por_categoria.items():
-        if items:
-            p.drawString(100, y, f'Categoría: {categoria.nombre}')
-            y -= 20
-            for item_carrito in items:
-                p.drawString(120, y, item_carrito.item.nombre)  # Acceder al nombre del item asociado al ItemCarrito
-                y -= 20
-    p.save()
-    return response
-
-
-
-def generar_pdf_derivaciones(derivaciones_por_categoria):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="derivaciones.pdf"'
-    p = canvas.Canvas(response)
-    y = 800
-    for derivacion, items in derivaciones_por_categoria.items():
-        if items:
-            p.drawString(100, y, f'Derivación: {derivacion.nombre}')
-            y -= 20
-            for item_carrito in items:
-                p.drawString(120, y, item_carrito.item.nombre)  # Acceder al nombre del item asociado al ItemCarrito
-                y -= 20
-    p.save()
-    return response
 
 @login_required
-def pago_exitoso(request):
-   carrito_usuario = request.user.carrito_set.first()
-
-   if carrito_usuario:
-        # Organizar los productos y derivaciones por categoría
+def generar_pdf_productos(request):
+    carrito_usuario = request.user.carrito_set.first()
+    
+    if carrito_usuario:
+        # Organizar los productos por categoría
         categorias = Categoria.objects.all()
         productos_por_categoria = {}
         for categoria in categorias:
             productos_por_categoria[categoria] = ItemCarrito.objects.filter(item__categoria=categoria, carrito=carrito_usuario)
         
-        derivaciones = Derivacion.objects.all()
-        derivaciones_por_categoria = {}
-        for derivacion in derivaciones:
-            derivaciones_por_categoria[derivacion] = ItemCarrito.objects.filter(item__derivacion=derivacion, carrito=carrito_usuario)
-
-        # Generar PDFs con los productos organizados por categoría y derivación
-        productos_pdf = generar_pdf_productos(productos_por_categoria)
-        derivaciones_pdf = generar_pdf_derivaciones(derivaciones_por_categoria)
-        
-        # Preparar la respuesta con los PDFs adjuntos
+        # Generar PDF con los productos organizados por categoría
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="productos_y_derivaciones.pdf"'
-        
-        # Escribir el contenido de cada PDF en la respuesta
-        response.write(productos_pdf.content)
-        response.write(derivaciones_pdf.content)
-
-        # Renderizar el HTML de pago_exitoso.html y enviarlo
+        response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
+        p = canvas.Canvas(response)
+        y = 800
+        for categoria, items in productos_por_categoria.items():
+            if items:
+                p.drawString(100, y, f'Categoría: {categoria.nombre}')
+                y -= 20
+                for item_carrito in items:
+                    p.drawString(120, y, item_carrito.item.nombre)  
+                    y -= 20
+        p.save()
         return response
 
-   else:
-        # Manejar el caso donde el usuario no tiene un carrito asociado
+    else:
         return HttpResponse("No se encontró el carrito del usuario")
 
 
 
+@login_required
+def generar_pdf_derivaciones(request):
+    carrito_usuario = request.user.carrito_set.first()
+    
+    if carrito_usuario:
+        # Organizar las derivaciones por categoría
+        derivaciones = Derivacion.objects.all()
+        derivaciones_por_categoria = {}
+        for derivacion in derivaciones:
+            derivaciones_por_categoria[derivacion] = ItemCarrito.objects.filter(item__derivacion=derivacion, carrito=carrito_usuario)
+        
+        # Generar PDF con las derivaciones organizadas por categoría
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="derivaciones.pdf"'
+        p = canvas.Canvas(response)
+        y = 800
+        for derivacion, items in derivaciones_por_categoria.items():
+            if items:
+                p.drawString(100, y, f'Derivación: {derivacion.nombre}')
+                y -= 20
+                for item_carrito in items:
+                    p.drawString(120, y, item_carrito.item.nombre)  
+                    y -= 20
+        p.save()
+        return response
+
+    else:
+        return HttpResponse("No se encontró el carrito del usuario")
 
 
+
+@login_required
+def pago_exitoso(request):
+    return render(request, 'examenes/pago_exitoso.html')
 
 
 
