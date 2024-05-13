@@ -1,8 +1,6 @@
-from django.urls import path,include
-from .views import SignUpView
+from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
-from .views import custom_password_reset, custom_password_reset_done, custom_password_reset_confirm,custom_password_reset_complete,agregar_al_carrito
 from .views import *
 
 

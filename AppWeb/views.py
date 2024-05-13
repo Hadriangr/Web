@@ -26,14 +26,6 @@ def index(request):
     return render(request, 'index.html')
 
 
-def examenes_hombre(request):
-    cuadros = [
-        {'titulo': 'Cuadro 1', 'contenido': 'Contenido del cuadro 1', 'ruta': 'Hcuadro_1'},
-        {'titulo': 'Cuadro 2', 'contenido': 'Contenido del cuadro 2', 'ruta': 'Hcuadro_2'},
-        {'titulo': 'Cuadro 3', 'contenido': 'Contenido del cuadro 3', 'ruta': 'Hcuadro_3'},
-        {'titulo': 'Cuadro 4', 'contenido': 'Contenido del cuadro 4', 'ruta': 'Hcuadro_4'},
-    ]
-    return render(request, 'examenes_hombre.html', {'cuadros': cuadros})
 
 
 
@@ -138,79 +130,138 @@ def register(request):
         user_form = CustomUserCreationForm()
     return render(request, 'registration/registro.html', {'user_form': user_form})
 
-def calcular_precio_total_categorias(categorias_seleccionadas):
-    precio_total = 0
+# def calcular_precio_total_categorias(categorias_seleccionadas):
+#     precio_total = 0
     
-    # Iterar sobre todas las categorías seleccionadas
-    for categoria in categorias_seleccionadas:
-        # Sumar el precio de cada categoría
-        precio_total += categoria.precio
+#     # Iterar sobre todas las categorías seleccionadas
+#     for categoria in categorias_seleccionadas:
+#         # Sumar el precio de cada categoría
+#         precio_total += categoria.precio
     
-    return precio_total
+#     return precio_total
 
 
 
 
-def calcular_precio_total(derivaciones_seleccionadas):
-    precio_total = 0
+# def calcular_precio_total(derivaciones_seleccionadas):
+#     precio_total = 0
     
-    # Sumar el precio de todas las derivaciones seleccionadas
-    for derivacion in derivaciones_seleccionadas:
-        precio_total += derivacion.precio
+#     # Sumar el precio de todas las derivaciones seleccionadas
+#     for derivacion in derivaciones_seleccionadas:
+#         precio_total += derivacion.precio
     
-    return precio_total
+#     return precio_total
 
-from django.db.models import Sum
+# from django.db.models import Sum
 
-def resumen_carrito(request):
-    # Obtener todos los items en el carrito del usuario actual 
-    items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=request.user) 
+# def resumen_carrito(request):
+#     # Obtener todos los items en el carrito del usuario actual 
+#     items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=request.user) 
     
-    # Obtener todas las categorías únicas en el carrito
-    categorias = Categoria.objects.filter(item__in=items_carrito).distinct()
+#     # Obtener todas las categorías únicas en el carrito
+#     categorias = Categoria.objects.filter(item__in=items_carrito).distinct()
     
-    # Crear un diccionario para almacenar los items agrupados por categoría
-    items_por_categoria = {}
-    precio_total_categorias = 0
+#     # Crear un diccionario para almacenar los items agrupados por categoría
+#     items_por_categoria = {}
+#     precio_total_categorias = 0
     
-    # Iterar sobre cada categoría y obtener los items asociados
-    for categoria in categorias:
-        items_categoria = items_carrito.filter(categoria=categoria)
-        items_por_categoria[categoria] = items_categoria
-        precio_total_categorias += items_categoria.aggregate(Sum('categoria__precio'))['categoria__precio__sum'] or 0
+#     # Iterar sobre cada categoría y obtener los items asociados
+#     for categoria in categorias:
+#         items_categoria = items_carrito.filter(categoria=categoria)
+#         items_por_categoria[categoria] = items_categoria
+#         precio_total_categorias += items_categoria.aggregate(Sum('categoria__precio'))['categoria__precio__sum'] or 0
     
-    # Obtener todas las derivaciones únicas en el carrito
-    derivaciones = Derivacion.objects.filter(item__in=items_carrito).distinct()
+#     # Obtener todas las derivaciones únicas en el carrito
+#     derivaciones = Derivacion.objects.filter(item__in=items_carrito).distinct()
     
-    # Crear un conjunto para mantener un registro de las derivaciones procesadas
+#     # Crear un conjunto para mantener un registro de las derivaciones procesadas
+#     derivaciones_procesadas = set()
+#     precio_total_derivaciones = 0
+    
+#     # Crear un diccionario para almacenar los ítems agrupados por derivación
+#     items_por_derivacion = {}
+    
+#     # Iterar sobre cada derivación y obtener el precio de cada una
+#     for derivacion in derivaciones:
+#         # Verificar si ya se ha procesado esta derivación
+#         if derivacion in derivaciones_procesadas:
+#             continue
+        
+#         # Obtener los ítems asociados a esta derivación
+#         items_derivacion = items_carrito.filter(derivacion=derivacion)
+        
+#         # Agregar los ítems de la derivación al diccionario
+#         items_por_derivacion[derivacion] = items_derivacion
+        
+#         # Calcular el precio total de la derivación (solo una vez)
+#         precio_total_derivacion = derivacion.precio
+        
+#         # Agregar el precio total de la derivación al precio total general
+#         precio_total_derivaciones += precio_total_derivacion
+        
+#         # Agregar la derivación al conjunto de derivaciones procesadas
+#         derivaciones_procesadas.add(derivacion)
+    
+#     # Calcular el precio total del carrito
+#     precio_total = precio_total_categorias + precio_total_derivaciones
+    
+#     return render(request, 'examenes/resumen_carritotest.html', {
+#         'items_por_categoria': items_por_categoria,
+#         'items_por_derivacion': items_por_derivacion,
+#         'precio_total_categorias': precio_total_categorias,
+#         'precio_total_derivaciones': precio_total_derivaciones,
+#         'precio_total': precio_total,
+#     })
+
+
+
+def calcular_precio_derivaciones(items_carrito, derivaciones):
     derivaciones_procesadas = set()
     precio_total_derivaciones = 0
-    
-    # Crear un diccionario para almacenar los ítems agrupados por derivación
     items_por_derivacion = {}
     
-    # Iterar sobre cada derivación y obtener el precio de cada una
     for derivacion in derivaciones:
-        # Verificar si ya se ha procesado esta derivación
         if derivacion in derivaciones_procesadas:
             continue
         
-        # Obtener los ítems asociados a esta derivación
         items_derivacion = items_carrito.filter(derivacion=derivacion)
-        
-        # Agregar los ítems de la derivación al diccionario
         items_por_derivacion[derivacion] = items_derivacion
         
-        # Calcular el precio total de la derivación (solo una vez)
         precio_total_derivacion = derivacion.precio
-        
-        # Agregar el precio total de la derivación al precio total general
         precio_total_derivaciones += precio_total_derivacion
         
-        # Agregar la derivación al conjunto de derivaciones procesadas
         derivaciones_procesadas.add(derivacion)
     
-    # Calcular el precio total del carrito
+    return precio_total_derivaciones, items_por_derivacion
+
+
+def calcular_precio_categorias(items_carrito, categorias):
+    categorias_procesadas = set()
+    precio_total_categorias = 0
+    items_por_categoria = {}
+    
+    for categoria in categorias:
+        if categoria in categorias_procesadas:
+            continue
+        
+        items_categoria = items_carrito.filter(categoria=categoria)
+        items_por_categoria[categoria] = items_categoria
+        
+        precio_total_categoria = categoria.precio
+        precio_total_categorias += precio_total_categoria
+        
+        categorias_procesadas.add(categoria)
+    
+    return precio_total_categorias, items_por_categoria
+
+def resumen_carrito(request):
+    items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=request.user) 
+    categorias = Categoria.objects.filter(item__in=items_carrito).distinct()
+    derivaciones = Derivacion.objects.filter(item__in=items_carrito).distinct()
+    
+    precio_total_categorias, items_por_categoria = calcular_precio_categorias(items_carrito, categorias)
+    precio_total_derivaciones, items_por_derivacion = calcular_precio_derivaciones(items_carrito, derivaciones)
+    
     precio_total = precio_total_categorias + precio_total_derivaciones
     
     return render(request, 'examenes/resumen_carritotest.html', {
@@ -220,9 +271,6 @@ def resumen_carrito(request):
         'precio_total_derivaciones': precio_total_derivaciones,
         'precio_total': precio_total,
     })
-
-
-
 
 
 
@@ -421,13 +469,16 @@ def generar_pdf_derivaciones(request):
         y -= 20
         p.drawString(100, y, f'RUT: {rut}')
         y -= 20
+        p.drawString(100,y,f'Se solicita evaluación por especialidad.')
+        y -=40
         for derivacion, items in derivaciones_por_categoria.items():
             if items:
                 p.drawString(100, y, f'Derivación: {derivacion.nombre}')
                 y -= 20
                 for item_carrito in items:
-                    p.drawString(120, y, item_carrito.item.nombre)  
+                    p.drawString(120, y, item_carrito.item.descripcion)  
                     y -= 20
+        
         p.save()
         return response
 
