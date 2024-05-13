@@ -363,9 +363,23 @@ def generar_pdf_productos(request):
         response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
         p = canvas.Canvas(response)
         y = 800
+
+        if carrito_usuario:
+            nombre = carrito_usuario.usuario.nombre
+            apellido = carrito_usuario.usuario.apellido
+            rut = carrito_usuario.usuario.rut  # Asumiendo que el rut está almacenado en el campo username
+
+        # Agregar información del usuario al PDF
+        p.drawString(100, y, f'Nombre: {nombre}')
+        y -= 20
+        p.drawString(100, y, f'Apellido: {apellido}')
+        y -= 20
+        p.drawString(100, y, f'RUT: {rut}')
+        y -= 20
+
         for categoria, items in productos_por_categoria.items():
             if items:
-                p.drawString(100, y, f'Categoría: {categoria.nombre}')
+                p.drawString(100, y, f' {categoria.nombre}')
                 y -= 20
                 for item_carrito in items:
                     p.drawString(120, y, item_carrito.item.nombre)  
@@ -394,6 +408,19 @@ def generar_pdf_derivaciones(request):
         response['Content-Disposition'] = 'attachment; filename="derivaciones.pdf"'
         p = canvas.Canvas(response)
         y = 800
+
+        if carrito_usuario:
+            nombre = carrito_usuario.usuario.nombre
+            apellido = carrito_usuario.usuario.apellido
+            rut = carrito_usuario.usuario.rut  # Asumiendo que el rut está almacenado en el campo username
+
+        # Agregar información del usuario al PDF
+        p.drawString(100, y, f'Nombre: {nombre}')
+        y -= 20
+        p.drawString(100, y, f'Apellido: {apellido}')
+        y -= 20
+        p.drawString(100, y, f'RUT: {rut}')
+        y -= 20
         for derivacion, items in derivaciones_por_categoria.items():
             if items:
                 p.drawString(100, y, f'Derivación: {derivacion.nombre}')
