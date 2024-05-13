@@ -6,17 +6,29 @@
 {% endblock %}
 
 {% block content %}
-<h1>Todas las Categorías</h1>
-<ul>
-    {% for categoria in categorias %}
-        <li>
-            <a href="{% url 'ver_productos_por_categoria' categoria.id %}">
-                {{ categoria.nombre }} - Precio: {{ categoria.precio }}
-            </a>
-            {% if categoria.imagen_url %}
-                <img src="{{ categoria.imagen_url }}" alt="{{ categoria.nombre }}">
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+<div class="container">
+    <h1 class="mb-4">Examenes</h1>
+    <div class="row">
+        {% for categoria in categorias %}
+        <div class="col-lg-4 mb-4">
+            <div class="card rounded">
+                {% if categoria.imagen_url %}
+                <a href="{% url 'ver_productos_por_categoria' categoria.id %}">
+                    <div style="height: 257px; overflow: hidden;">
+                        <img src="{{ categoria.imagen_url }}" class="card-img-top img-fluid" alt="{{ categoria.nombre }}">
+                    </div>
+                </a>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ categoria.nombre }}</h5>
+                    <p class="card-text text-center">Precio: {{ categoria.precio }}</p>
+                    <div class="text-center">
+                        <a href="{% url 'ver_productos_por_categoria' categoria.id %}" class="btn btn-primary">Ver más</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

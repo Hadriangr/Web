@@ -130,90 +130,6 @@ def register(request):
         user_form = CustomUserCreationForm()
     return render(request, 'registration/registro.html', {'user_form': user_form})
 
-# def calcular_precio_total_categorias(categorias_seleccionadas):
-#     precio_total = 0
-    
-#     # Iterar sobre todas las categorías seleccionadas
-#     for categoria in categorias_seleccionadas:
-#         # Sumar el precio de cada categoría
-#         precio_total += categoria.precio
-    
-#     return precio_total
-
-
-
-
-# def calcular_precio_total(derivaciones_seleccionadas):
-#     precio_total = 0
-    
-#     # Sumar el precio de todas las derivaciones seleccionadas
-#     for derivacion in derivaciones_seleccionadas:
-#         precio_total += derivacion.precio
-    
-#     return precio_total
-
-# from django.db.models import Sum
-
-# def resumen_carrito(request):
-#     # Obtener todos los items en el carrito del usuario actual 
-#     items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=request.user) 
-    
-#     # Obtener todas las categorías únicas en el carrito
-#     categorias = Categoria.objects.filter(item__in=items_carrito).distinct()
-    
-#     # Crear un diccionario para almacenar los items agrupados por categoría
-#     items_por_categoria = {}
-#     precio_total_categorias = 0
-    
-#     # Iterar sobre cada categoría y obtener los items asociados
-#     for categoria in categorias:
-#         items_categoria = items_carrito.filter(categoria=categoria)
-#         items_por_categoria[categoria] = items_categoria
-#         precio_total_categorias += items_categoria.aggregate(Sum('categoria__precio'))['categoria__precio__sum'] or 0
-    
-#     # Obtener todas las derivaciones únicas en el carrito
-#     derivaciones = Derivacion.objects.filter(item__in=items_carrito).distinct()
-    
-#     # Crear un conjunto para mantener un registro de las derivaciones procesadas
-#     derivaciones_procesadas = set()
-#     precio_total_derivaciones = 0
-    
-#     # Crear un diccionario para almacenar los ítems agrupados por derivación
-#     items_por_derivacion = {}
-    
-#     # Iterar sobre cada derivación y obtener el precio de cada una
-#     for derivacion in derivaciones:
-#         # Verificar si ya se ha procesado esta derivación
-#         if derivacion in derivaciones_procesadas:
-#             continue
-        
-#         # Obtener los ítems asociados a esta derivación
-#         items_derivacion = items_carrito.filter(derivacion=derivacion)
-        
-#         # Agregar los ítems de la derivación al diccionario
-#         items_por_derivacion[derivacion] = items_derivacion
-        
-#         # Calcular el precio total de la derivación (solo una vez)
-#         precio_total_derivacion = derivacion.precio
-        
-#         # Agregar el precio total de la derivación al precio total general
-#         precio_total_derivaciones += precio_total_derivacion
-        
-#         # Agregar la derivación al conjunto de derivaciones procesadas
-#         derivaciones_procesadas.add(derivacion)
-    
-#     # Calcular el precio total del carrito
-#     precio_total = precio_total_categorias + precio_total_derivaciones
-    
-#     return render(request, 'examenes/resumen_carritotest.html', {
-#         'items_por_categoria': items_por_categoria,
-#         'items_por_derivacion': items_por_derivacion,
-#         'precio_total_categorias': precio_total_categorias,
-#         'precio_total_derivaciones': precio_total_derivaciones,
-#         'precio_total': precio_total,
-#     })
-
-
 
 def calcular_precio_derivaciones(items_carrito, derivaciones):
     derivaciones_procesadas = set()
@@ -357,9 +273,13 @@ def agregar_al_carrito(request):
             pass
 
         # Verificar si el elemento ya está en el carrito del usuario
-        if not ItemCarrito.objects.filter(carrito=carrito_usuario, item=elemento).exists():
+        if ItemCarrito.objects.filter(carrito=carrito_usuario, item=elemento).exists():
+            # Si el elemento ya está en el carrito, mostrar un mensaje de error
+            messages.error(request, 'Este producto ya está en tu carrito.')
+        else:
             # Agregar el elemento al carrito del usuario
             ItemCarrito.objects.create(carrito=carrito_usuario, item=elemento)
+            messages.success(request, 'Producto agregado al carrito correctamente.')
             request.session.modified = True
     
     return redirect('resumen_carrito')

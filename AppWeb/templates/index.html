@@ -25,15 +25,18 @@
                 <a class="navbar-brand" href="{% url 'ver_categorias' %}">Solicitar examen</a>
                 
                 {% if request.user.is_authenticated %}
-                    <div class="navbar-item">
-                        <p>
-                            Hola {{ request.user.nombre|default:request.user.username }}
-                            {{ request.user.apellido|default:'' }} 
-                            <a href="{% url 'mi_cuenta' %}" class="btn btn-outline-dark">Mi cuenta</a> 
-                            <a href="{% url 'logout' %}" class="btn btn-outline-secondary">Cerrar sesión</a> 
-                {% else %}
-                    <a class="btn btn-outline-primary" href="{% url 'login' %}">Iniciar Sesión</a> 
-                {% endif %}
+                <div class="navbar-item">
+                    <!-- Cambiar el texto que muestra tu nombre a un enlace a 'mi_cuenta' -->
+                    <a href="{% url 'mi_cuenta' %}" class="navbar-link">
+                        Hola {{ request.user.nombre|default:request.user.username }} {{ request.user.apellido|default:'' }}
+                    </a>
+                    <!-- Cambiar el botón 'Mi cuenta' para que te lleve a 'carrito' -->
+                    <a href="{% url 'resumen_carrito' %}" class="btn btn-outline-dark">Mi carrito</a> 
+                    <a href="{% url 'logout' %}" class="btn btn-outline-secondary">Cerrar sesión</a> 
+                </div>
+            {% else %}
+                <a class="btn btn-outline-primary" href="{% url 'login' %}">Iniciar Sesión</a> 
+            {% endif %}
             </div>
         </nav>
         
@@ -95,6 +98,7 @@
                         <div class="col-lg-6 order-lg-1 my-auto showcase-text">
                             <h2>Exámenes</h2>
                             <p class="lead mb-0">Paquete de exámenes preventivos para control de salud general, condiciones específicas y evaluación preocupacional.</p>
+                            <a href="{% url 'ver_categorias' %}" class="btn btn-primary mt-3">Ver Examenes</a>
                         </div>
                     </div>
                     <div class="row g-0">
@@ -107,18 +111,9 @@
                         <div class="col-lg-6 my-auto showcase-text">
                             <h2>Derivaciones</h2>
                             <p class="lead mb-0">Paquete de examenes preventivos para control de salud general, condiciones específicas y evaluación preocupacional.</p>
+                            <a href="{% url 'derivaciones' %}" class="btn btn-primary mt-3">Ver derivaciones</a>
                         </div>
                     </div>
-                    
-                <div class="row g-0">
-                    <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('{% static 'assets/img/bg-showcase-3.jpg' %}')"></div>
-                    <div class="col-lg-6 order-lg-1 my-auto showcase-text">
-                        <h2>Easy to Use & Customize</h2>
-                        <p class="lead mb-0">Landing Page is just HTML and CSS with a splash of SCSS for users who demand some deeper customization options. Out of the box, just add your content and images, and your new landing page will be ready to go!</p>
-                    </div>
-                </div>
-            </div>
-        </section>
         <!-- Testimonials-->
         <section class="testimonials text-center bg-light">
             <div class="container">

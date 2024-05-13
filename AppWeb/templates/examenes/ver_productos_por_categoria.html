@@ -7,21 +7,79 @@
 
 {% block content %}
 
-<h1>Productos Disponibles</h1>
-<ul>
-    {% for producto in productos %}
-    <li>
-        <h2>{{ producto.nombre }}</h2>
-        <p>Precio: {{ producto.categoria.precio }}</p> <!-- Utiliza el precio de la categoría -->
-        <form method="post" action="{% url 'agregar_al_carrito' %}">
-            {% csrf_token %}
-            <input type="hidden" name="elemento_id" value="{{ producto.id }}">
-            <input type="hidden" name="tipo" value="producto">
-            <button type="submit">Agregar al carrito</button>
-        </form>
-    </li>
-    {% endfor %}
-</ul>
-<a href="{% url 'resumen_carrito' %}">Ver Carrito</a>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h1 class="mb-4">Productos Disponibles</h1>
+            {% for producto in productos %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ producto.nombre }}</h5>
+                    <p class="card-text">Precio: {{ producto.categoria.precio }}</p>
+                    <form class="agregar-al-carrito-form" data-producto-id="{{ producto.id }}" method="post" action="{% url 'agregar_al_carrito' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="elemento_id" value="{{ producto.id }}">
+                        <input type="hidden" name="tipo" value="producto">
+                        <button type="submit" class="btn btn-primary btn-sm" {% if producto.ya_en_carrito %}disabled{% endif %}>
+                            {% if producto.ya_en_carrito %}Producto Agregado{% else %}Agregar al carrito{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col-md-6">
+            <p>Agrega aquí tu texto adicional.</p>
+            <p>Puedes colocar cualquier contenido adicional que desees mostrar junto a la lista de productos aquí.</p>
+        </div>
+    </div>
+</div>
 
+<button id="ver-carrito-btn" class="btn btn-info mt-3" style="display: none;">Ver Carrito</button>
+
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const agregarAlCarritoForms = document.querySelectorAll('.agregar-al-carrito-form');
+        const verCarritoBtn = document.getElementById('ver-carrito-btn');
+
+        agregarAlCarritoForms.forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();  // Evitar que el formulario se envíe automáticamente
+                const formData = new FormData(this);
+                fetch(this.action, {
+                    method: this.method,
+                    body: formData,
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Error al agregar el producto al carrito');
+                })
+                .then(data => {
+                    // Mostrar mensaje de éxito o error
+                    alert(data.message);
+                    if (data.success) {
+                        // Deshabilitar el botón y mostrar el botón para ver el carrito
+                        this.querySelector('button').disabled = true;
+                        verCarritoBtn.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al agregar el producto al carrito');
+                });
+            });
+        });
+
+        verCarritoBtn.addEventListener('click', function(event) {
+            // Redirigir a la página de resumen del carrito
+            window.location.href = "{% url 'resumen_carrito' %}";
+        });
+    });
+</script>
 {% endblock %}
