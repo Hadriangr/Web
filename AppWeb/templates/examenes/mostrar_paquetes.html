@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Paquetes
+{% endblock %}
+
+{% block content %}
+{% for paquete in paquetes %}
+    <div>
+        <h2>{{ paquete.nombre }}</h2>
+        <p>Costo fijo: ${{ paquete.costo_fijo }}</p>
+        {% if paquete.imagen %}
+            <img src="{{ paquete.imagen.url }}" alt="Imagen del paquete">
+        {% endif %}
+        <form method="get" action="{% url 'mostrar_examenes' paquete.id %}">
+            <button type="submit">Ver exámenes</button>
+        </form>
+    </div>
+{% endfor %}
+{% endblock %}

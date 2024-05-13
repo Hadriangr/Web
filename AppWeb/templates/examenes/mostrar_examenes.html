@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}
+    Exámenes del Paquete {{ paquete.nombre }}
+{% endblock %}
+
+{% block content %}
+    <h2>Exámenes del Paquete {{ paquete.nombre }}</h2>
+    <p>Costo fijo del paquete: ${{ paquete.costo_fijo }}</p>
+    {% if paquete.imagen %}
+        <img src="{{ paquete.imagen.url }}" alt="Imagen del paquete">
+    {% endif %}
+    <form method="post" action="{% url 'ver_carrito' paquete.id %}">
+        {% csrf_token %}
+        <h3>Lista de exámenes:</h3>
+        <ul>
+            {% for examen in paquete.examenes.all %}
+                <li>
+                    <input type="checkbox" id="examen_{{ examen.id }}" name="examen_seleccionado" value="{{ examen.id }}">
+                    <label for="examen_{{ examen.id }}">{{ examen.nombre }}</label>
+                </li>
+            {% endfor %}
+        </ul>
+        <button type="submit">Agregar al carrito</button>
+    </form>
+    
+    
+{% endblock %}
+

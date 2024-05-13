@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Examenes
+{% endblock %}
+
+{% block content %}
+
+<h1>Productos Disponibles</h1>
+<ul>
+    {% for producto in productos %}
+    <li>
+        <h2>{{ producto.nombre }}</h2>
+        <p>Precio: {{ producto.categoria.precio }}</p> <!-- Utiliza el precio de la categoría -->
+        <form method="post" action="{% url 'agregar_al_carrito' %}">
+            {% csrf_token %}
+            <input type="hidden" name="elemento_id" value="{{ producto.id }}">
+            <input type="hidden" name="tipo" value="producto">
+            <button type="submit">Agregar al carrito</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'resumen_carrito' %}">Ver Carrito</a>
+
+{% endblock %}

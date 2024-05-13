@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Agregar al Carrito
+{% endblock %}
+
+{% block content %}
+    <h1>Agregar al Carrito</h1>
+    <form id="agregar-al-carrito-form" method="post" action="{% url 'agregar_al_carrito' %}">
+        {% csrf_token %}
+        <input type="hidden" name="elemento_id" value="{{ elemento.id }}">
+        <input type="hidden" name="tipo" value="{{ tipo }}">
+        <button type="submit">Agregar al Carrito</button>
+    </form>
+
+    <!-- Script para redireccionar al resumen del carrito después de enviar el formulario -->
+    <script>
+        document.getElementById("agregar-al-carrito-form").addEventListener("submit", function(event) {
+            // Prevenir el comportamiento predeterminado del formulario para evitar la recarga de la página
+            event.preventDefault();
+            
+            // Redirigir al usuario al resumen del carrito
+            window.location.href = "{% url 'resumen_carrito' %}";
+        });
+    </script>
+{% endblock %}
+
+

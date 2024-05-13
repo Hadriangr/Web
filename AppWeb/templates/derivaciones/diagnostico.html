@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Diagnósticos
+{% endblock %}
+
+{% block content %}
+
+<h1>Síntomas:</h1>
+<ul>
+    {% for diagnostico in diagnosticos %}
+    <li>{{ diagnostico.nombre }}</li>
+    <form method="post" action="{% url 'agregar_al_carrito' %}">
+        {% csrf_token %}
+        <input type="hidden" name="elemento_id" value="{{ diagnostico.id }}">
+        <input type="hidden" name="tipo" value="diagnostico"> <!-- Corregir el valor del tipo -->
+        <button type="submit">Agregar al carrito</button>
+    </form>
+    {% endfor %}
+</ul>
+<a href="{% url 'resumen_carrito' %}">Ver Carrito</a>
+{% endblock %}

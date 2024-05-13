@@ -4,7 +4,11 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 from django.contrib.auth import authenticate
 from django.forms.widgets import SelectDateWidget
+<<<<<<< HEAD
 from django.core.exceptions import ValidationError
+=======
+
+>>>>>>> origin/carrito
 
 
 
@@ -22,6 +26,7 @@ class CustomUserCreationForm(UserCreationForm):
         )
     )
 
+<<<<<<< HEAD
     email = forms.EmailField(label='Correo electrónico', max_length=254, help_text='Required. Inform a valid email address.')
     email_confirm = forms.EmailField(label='Confirmar correo electrónico')
 
@@ -53,3 +58,11 @@ class CustomUserCreationForm(UserCreationForm):
                 )
         return cleaned_data
 
+=======
+    class Meta:
+        model = CustomUser
+        fields = ('nombre', 'apellido', 'email', 'direccion', 'telefono_contacto', 'fecha_nacimiento', 'rut', 'genero', 'region', 'comuna')
+
+
+
+>>>>>>> origin/carrito

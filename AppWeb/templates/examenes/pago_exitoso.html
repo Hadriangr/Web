@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Paquetes
+{% endblock %}
+
+{% block content %}
+
+<h1>PAGO EXITOSO</h1>
+<p>¡Gracias por su compra!</p>
+
+<h2>Descargar PDFs:</h2>
+<ul>
+    <li><a href="{% url 'generar_pdf_productos' %}" target="_blank">Descargar productos PDF</a></li>
+    <li><a href="{% url 'generar_pdf_derivaciones' %}" target="_blank">Descargar derivaciones PDF</a></li>
+</ul>
+{% endblock %}

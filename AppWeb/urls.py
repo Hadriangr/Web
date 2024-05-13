@@ -3,6 +3,7 @@ from .views import SignUpView
 from . import views
 from django.contrib.auth import views as auth_views
 from .views import custom_password_reset, custom_password_reset_done, custom_password_reset_confirm,ver_carrito , custom_password_reset_complete,mostrar_carrito,agregar_al_carrito,eliminar_del_carrito
+from .views import *
 
 
 urlpatterns = [
@@ -26,5 +27,17 @@ urlpatterns = [
     path('mi-cuenta/', views.mi_cuenta, name='mi_cuenta'),
     path('mi-cuenta/editar', views.editar_perfil, name='editar_perfil'),
     
+    path('agregar_al_carrito/', views.agregar_al_carrito, name='agregar_al_carrito'),
+    path('pago_exitoso/',views.pago_exitoso, name="pago_exitoso"),
+    path('categorias/', views.ver_categorias, name='ver_categorias'),
+    path('categorias/<int:categoria_id>/', views.ver_productos_por_categoria, name='ver_productos_por_categoria'),
+    path('eliminar-producto/<int:item_id>/', views.eliminar_producto, name='eliminar_producto'),
+    path('eliminar-derivacion/<int:item_id>/', views.eliminar_derivacion, name='eliminar_derivacion'),
+    path('derivaciones', views.ver_derivaciones, name='derivaciones'),
+    path('ver_diagnosticos/<int:derivacion_id>/', views.ver_diagnosticos, name='ver_diagnosticos'),
+    path('resumen_carrito/', views.resumen_carrito, name='resumen_carrito'),
+    path('carrito/', views.carrito, name='carrito'),
+    path('generar-pdf-productos/', views.generar_pdf_productos, name='generar_pdf_productos'),
+    path('generar-pdf-derivaciones/', views.generar_pdf_derivaciones, name='generar_pdf_derivaciones'),
 ]
 

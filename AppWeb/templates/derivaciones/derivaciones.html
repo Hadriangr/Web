@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Lista de Derivaciones
+{% endblock %}
+
+{% block content %}
+<h1>Todas las Derivaciones</h1>
+<ul>
+    {% for derivacion in derivaciones %}
+        <li>
+            <a href="{% url 'ver_diagnosticos' derivacion.id %}">
+                {{ derivacion.nombre }} - Precio: {{ derivacion.precio }}
+            </a>
+            {% if derivacion.imagen_url %}
+                <img src="{{ derivacion.imagen_url }}" alt="{{ derivacion.nombre }}">
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
