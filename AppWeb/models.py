@@ -139,7 +139,7 @@ class Item(models.Model):
 
 
 class Carrito(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     creado_en = models.DateTimeField(auto_now_add=True)
     modificado_en = models.DateTimeField(auto_now=True)
 
