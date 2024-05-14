@@ -3,7 +3,7 @@ from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
 from django.http import HttpResponse
 from .models import CustomUser,Categoria,Derivacion,Item,Carrito,ItemCarrito
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import PasswordResetForm,AuthenticationForm
 from django.core.mail import send_mail
@@ -257,6 +257,7 @@ def editar_perfil(request):
     return render(request, 'cuenta/editar_perfil.html', {'usuario': usuario})
 
 
+
 def agregar_al_carrito(request):
     if request.method == 'POST':
         elemento_id = request.POST.get('elemento_id')
@@ -274,15 +275,15 @@ def agregar_al_carrito(request):
 
         # Verificar si el elemento ya está en el carrito del usuario
         if ItemCarrito.objects.filter(carrito=carrito_usuario, item=elemento).exists():
-            # Si el elemento ya está en el carrito, mostrar un mensaje de error
-            messages.error(request, 'Este producto ya está en tu carrito.')
+            # Si el elemento ya está en el carrito, no es necesario mostrar ningún mensaje
+            pass
         else:
             # Agregar el elemento al carrito del usuario
             ItemCarrito.objects.create(carrito=carrito_usuario, item=elemento)
-            messages.success(request, 'Producto agregado al carrito correctamente.')
-            request.session.modified = True
-    
-    return redirect('resumen_carrito')
+            # No se muestran mensajes
+
+    # Redireccionar a la página de la categoría del producto agregado
+    return redirect(reverse('ver_productos_por_categoria', args=[elemento.categoria.id]))
 
 
 
