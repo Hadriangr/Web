@@ -19,8 +19,9 @@ urlpatterns = [
     path('registro_test/', views.register, name='registro_test'),
     path('mi-cuenta/', views.mi_cuenta, name='mi_cuenta'),
     path('mi-cuenta/editar', views.editar_perfil, name='editar_perfil'),
-    
+    path('historico/', views.ver_compras_usuario, name='historico'),
     path('agregar_al_carrito/', views.agregar_al_carrito, name='agregar_al_carrito'),
+    path('agregar_derivaciones/', views.agregar_al_carrito_derivaciones, name='agregar_derivaciones'),
     path('pago_exitoso/',views.pago_exitoso, name="pago_exitoso"),
     path('categorias/', views.ver_categorias, name='ver_categorias'),
     path('categorias/<int:categoria_id>/', views.ver_productos_por_categoria, name='ver_productos_por_categoria'),

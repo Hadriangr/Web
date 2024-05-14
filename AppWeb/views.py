@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
 from django.http import HttpResponse
-from .models import CustomUser,Categoria,Derivacion,Item,Carrito,ItemCarrito
+from .models import CustomUser,Categoria,Derivacion,Item,Carrito,ItemCarrito,CompraHistorica
 from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import PasswordResetForm,AuthenticationForm
@@ -170,6 +170,9 @@ def calcular_precio_categorias(items_carrito, categorias):
     
     return precio_total_categorias, items_por_categoria
 
+
+from django.db import transaction
+
 def resumen_carrito(request):
     items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=request.user) 
     categorias = Categoria.objects.filter(item__in=items_carrito).distinct()
@@ -180,6 +183,11 @@ def resumen_carrito(request):
     
     precio_total = precio_total_categorias + precio_total_derivaciones
     
+    for item in items_carrito:
+        CompraHistorica.objects.create(usuario=request.user, producto=item, costo=precio_total)
+    
+
+
     return render(request, 'examenes/resumen_carritotest.html', {
         'items_por_categoria': items_por_categoria,
         'items_por_derivacion': items_por_derivacion,
@@ -257,6 +265,13 @@ def editar_perfil(request):
     return render(request, 'cuenta/editar_perfil.html', {'usuario': usuario})
 
 
+@login_required
+def ver_compras_usuario(request):
+    # Obtener todas las compras históricas del usuario actual
+    compras_usuario = CompraHistorica.objects.filter(usuario=request.user)
+    
+    return render(request, 'cuenta/historico.html', {'compras_usuario': compras_usuario})
+
 
 def agregar_al_carrito(request):
     if request.method == 'POST':
@@ -284,6 +299,34 @@ def agregar_al_carrito(request):
 
     # Redireccionar a la página de la categoría del producto agregado
     return redirect(reverse('ver_productos_por_categoria', args=[elemento.categoria.id]))
+
+
+def agregar_al_carrito_derivaciones(request):
+    if request.method == 'POST':
+        elemento_id = request.POST.get('elemento_id')
+        tipo = request.POST.get('tipo')
+        
+        # Obtener el elemento (Producto o Diagnostico) según el tipo y el ID
+        elemento = get_object_or_404(Item, id=elemento_id)
+        
+        # Obtener el carrito del usuario o crear uno nuevo si no existe
+        if request.user.is_authenticated:
+            carrito_usuario, _ = Carrito.objects.get_or_create(usuario=request.user)
+        else:
+            # Manejo de usuarios anónimos, si es necesario
+            pass
+
+        # Verificar si el elemento ya está en el carrito del usuario
+        if ItemCarrito.objects.filter(carrito=carrito_usuario, item=elemento).exists():
+            # Si el elemento ya está en el carrito, no es necesario mostrar ningún mensaje
+            pass
+        else:
+            # Agregar el elemento al carrito del usuario
+            ItemCarrito.objects.create(carrito=carrito_usuario, item=elemento)
+            # No se muestran mensajes
+
+    # Redireccionar a la página de la categoría del producto agregado
+    return redirect(reverse('ver_diagnosticos', args=[elemento.derivacion.id]))
 
 
 

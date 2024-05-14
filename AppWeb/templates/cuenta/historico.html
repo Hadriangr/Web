@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Editar perfil
+{% endblock %}
+
+{% block head %}
+<style>
+    /* Estilos para el contenedor de compras */
+    .compras-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    /* Estilos para la tabla de compras */
+    .compras-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .compras-table th,
+    .compras-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+
+    .compras-table th {
+        background-color: #f2f2f2;
+        text-align: left;
+    }
+
+    .compras-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    .compras-table tr:hover {
+        background-color: #ddd;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Compras realizadas por {{ request.user.nombre }}</h1>
+    
+{% if compras_usuario %}
+<table class="compras-table">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Fecha de compra</th>
+            <th>Hora de compra</th>
+            <th>Costo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for compra in compras_usuario %}
+        <tr>
+            <td>{{ compra.producto }}</td>
+            <td>{{ compra.fecha_compra|date:"Y-m-d" }}</td>
+            <td>{{ compra.fecha_compra|time:"H:i:s" }}</td>
+            <td>{{ compra.costo }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No hay compras realizadas.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No hay compras realizadas.</p>
+{% endif %}
+{% endblock %}

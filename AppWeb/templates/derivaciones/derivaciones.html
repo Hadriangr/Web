@@ -6,17 +6,29 @@
 {% endblock %}
 
 {% block content %}
-<h1>Todas las Derivaciones</h1>
-<ul>
-    {% for derivacion in derivaciones %}
-        <li>
-            <a href="{% url 'ver_diagnosticos' derivacion.id %}">
-                {{ derivacion.nombre }} - Precio: {{ derivacion.precio }}
-            </a>
-            {% if derivacion.imagen_url %}
-                <img src="{{ derivacion.imagen_url }}" alt="{{ derivacion.nombre }}">
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
+<div class="container">
+    <h1 class="mb-4">Derivaciones</h1>
+    <div class="row">
+        {% for derivacion in derivaciones %}
+        <div class="col-lg-4 mb-4">
+            <div class="card rounded">
+                {% if derivacion.imagen_url %}
+                <a href="{% url 'ver_productos_por_derivacion' derivacion.id %}">
+                    <div style="height: 257px; overflow: hidden;">
+                        <img src="{{ derivacion.imagen_url }}" class="card-img-top img-fluid" alt="{{ derivacion.nombre }}">
+                    </div>
+                </a>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ derivacion.nombre }}</h5>
+                    <p class="card-text text-center">Precio: {{ derivacion.precio }}</p>
+                    <div class="text-center">
+                        <a href="{% url 'ver_diagnosticos' derivacion.id %}" class="btn btn-primary">Ver más</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

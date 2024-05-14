@@ -1,3 +1,5 @@
+
+
 {% extends 'base.html' %}
 {% load static %}
 
@@ -5,19 +7,35 @@
     Lista de Diagnósticos
 {% endblock %}
 
+
 {% block content %}
 
-<h1>Síntomas:</h1>
-<ul>
-    {% for diagnostico in diagnosticos %}
-    <li>{{ diagnostico.nombre }}</li>
-    <form method="post" action="{% url 'agregar_al_carrito' %}">
-        {% csrf_token %}
-        <input type="hidden" name="elemento_id" value="{{ diagnostico.id }}">
-        <input type="hidden" name="tipo" value="diagnostico"> <!-- Corregir el valor del tipo -->
-        <button type="submit">Agregar al carrito</button>
-    </form>
-    {% endfor %}
-</ul>
-<a href="{% url 'resumen_carrito' %}">Ver Carrito</a>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h1 class="mb-4">Diagnósticos disponibles</h1>
+            {% for diagnostico in diagnosticos %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ diagnostico.nombre }}</h5>
+                    <p class="card-text">Precio: {{ diagnostico.derivacion.precio }}</p>
+                    <form class="agregar-al-carrito-form" data-producto-id="{{ diagnostico.id }}" method="post" action="{% url 'agregar_derivaciones' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="elemento_id" value="{{ diagnostico.id }}">
+                        <input type="hidden" name="tipo" value="diagnostico">
+                        <button type="submit" class="btn btn-primary btn-sm agregar-al-carrito-btn" {% if diagnostico.ya_en_carrito %}disabled{% endif %}>
+                            {% if diagnostico.ya_en_carrito %}Diagnóstico Agregado{% else %}Agregar al carrito{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+            <a href="{% url 'resumen_carrito' %}" class="btn btn-info mt-3">Ver Resumen del Carrito</a>
+        </div>
+        <div class="col-md-6">
+            <h2>¿Por qué solicitar {{ derivacion.nombre }}?</h2>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

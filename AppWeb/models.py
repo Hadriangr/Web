@@ -138,11 +138,22 @@ class Item(models.Model):
 
 
 
+class CompraHistorica(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Item, on_delete=models.CASCADE)
+    fecha_compra = models.DateTimeField(auto_now_add=True)
+    costo = models.DecimalField(max_digits=10, decimal_places=0)
+
+# Modelo para el carrito de compras
 class Carrito(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     creado_en = models.DateTimeField(auto_now_add=True)
     modificado_en = models.DateTimeField(auto_now=True)
 
+    def limpiar_carrito(self):
+        self.itemcarrito_set.all().delete()
+
+# Modelo para los ítems en el carrito
 class ItemCarrito(models.Model):
     carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, null=True)

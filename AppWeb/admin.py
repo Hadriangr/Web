@@ -10,6 +10,7 @@ admin.site.register(Categoria)
 admin.site.register(Derivacion)
 admin.site.register(Carrito)
 admin.site.register(ItemCarrito)
+admin.site.register(CompraHistorica)
 
 
 

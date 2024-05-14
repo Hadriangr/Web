@@ -10841,7 +10841,7 @@ textarea.form-control-lg {
 header.masthead {
   position: relative;
   background-color: #343a40;
-  background: url("../assets/img/bg-masthead.jpg") no-repeat center center;
+  background-image: url("../assets/img/fondo.jpg") no-repeat center center;
   background-size: cover;
   padding-top: 8rem;
   padding-bottom: 8rem;
@@ -10918,3 +10918,39 @@ footer.footer {
   padding-bottom: 4rem;
 }
 
+
+/* Estilos para el contenedor de compras */
+.compras-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Estilos para la tabla de compras */
+.compras-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.compras-table th,
+.compras-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.compras-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.compras-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.compras-table tr:hover {
+    background-color: #ddd;
+}
