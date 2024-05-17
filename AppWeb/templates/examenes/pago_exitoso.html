@@ -6,13 +6,27 @@
 {% endblock %}
 
 {% block content %}
-
-<ul>
-<h1>{{ mensaje }}</h1>
-<p>¡Gracias por tu compra! Tu pago ha sido procesado con éxito.</p>
-<p>A continuación, puedes descargar los siguientes PDFs:</p>
-<ul>
-    <li><a href="{% url 'generar_pdf_productos' %}" target="_blank">Descargar productos PDF</a></li>
-    <li><a href="{% url 'generar_pdf_derivaciones' %}" target="_blank">Descargar derivaciones PDF</a></li>
-</ul>
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ mensaje }}</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">¡Gracias por tu compra! Tu pago ha sido procesado con éxito.</p>
+                    <p class="lead">A continuación, puedes descargar los siguientes PDFs:</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <a href="{% url 'generar_pdf_productos' %}" class="btn btn-outline-primary" target="_blank">Descargar productos PDF</a>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="{% url 'generar_pdf_derivaciones' %}" class="btn btn-outline-primary" target="_blank">Descargar derivaciones PDF</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
