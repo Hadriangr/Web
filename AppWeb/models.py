@@ -146,12 +146,15 @@ class CompraHistorica(models.Model):
 
 # Modelo para el carrito de compras
 class Carrito(models.Model):
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    usuario = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     creado_en = models.DateTimeField(auto_now_add=True)
     modificado_en = models.DateTimeField(auto_now=True)
 
     def limpiar_carrito(self):
         self.itemcarrito_set.all().delete()
+    
+    def __str__(self):
+        return f"Carrito de {self.usuario.username}"
 
 # Modelo para los ítems en el carrito
 class ItemCarrito(models.Model):

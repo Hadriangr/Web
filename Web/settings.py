@@ -137,8 +137,12 @@ AUTH_USER_MODEL = 'AppWeb.CustomUser'
 load_dotenv()
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'mail.options.cl'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''  # Usar tu dirección de correo electrónico de Gmail
-EMAIL_HOST_PASSWORD = ''  # Usar la contraseña de aplicación generada
+EMAIL_HOST_USER = 'Nuuk_medical@options.cl'  # Usar tu dirección de correo electrónico de Gmail
+EMAIL_HOST_PASSWORD = os.environ.get('Django_Email_Password')  # Usar la contraseña de aplicación generada
+
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

@@ -7,10 +7,10 @@
 
 {% block content %}
 
-<h1>PAGO EXITOSO</h1>
-<p>¡Gracias por su compra!</p>
-
-<h2>Descargar PDFs:</h2>
+<ul>
+<h1>{{ mensaje }}</h1>
+<p>¡Gracias por tu compra! Tu pago ha sido procesado con éxito.</p>
+<p>A continuación, puedes descargar los siguientes PDFs:</p>
 <ul>
     <li><a href="{% url 'generar_pdf_productos' %}" target="_blank">Descargar productos PDF</a></li>
     <li><a href="{% url 'generar_pdf_derivaciones' %}" target="_blank">Descargar derivaciones PDF</a></li>

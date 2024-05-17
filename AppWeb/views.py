@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from .models import CustomUser,Categoria,Derivacion,Item,Carrito,ItemCarrito,CompraHistorica
 from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import CreateView
@@ -11,7 +11,10 @@ from django.contrib import messages
 from django import forms
 from django.contrib.auth.decorators import login_required
 from reportlab.pdfgen import canvas
-from django.template.loader import get_template
+from django.utils.html import strip_tags
+from django.core.mail import EmailMessage,send_mail
+from django.utils import timezone
+
 
 
 
@@ -30,26 +33,28 @@ def index(request):
 
 
 def user_login(request):
-    if request.method =='POST':
+    next_url = request.GET.get('next', '')  # Obtener la URL de redirección si existe
+
+    if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            # Aquí utilizamos el campo de email en lugar del campo de username
             username_or_email = cd.get('username')  # Este campo aún se llama 'username' en tu formulario de inicio de sesión
             password = cd['password']
             user = authenticate(request, username=username_or_email, password=password)
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponse('Usuario autenticado')
+                    next_url = request.POST.get('next', reverse('home'))  # Redirigir a la página inicial o a la URL de redirección
+                    return HttpResponseRedirect(next_url)
                 else:
                     return HttpResponse('El usuario no está activo')
             else:
                 return HttpResponse('La información de inicio de sesión no es correcta')
     else:
         form = AuthenticationForm(request)
-    
-    return render(request, 'registration/login.html', {'form': form})
+
+    return render(request, 'registration/login.html', {'form': form, 'next': next_url})
 
 
 
@@ -171,10 +176,8 @@ def calcular_precio_categorias(items_carrito, categorias):
     return precio_total_categorias, items_por_categoria
 
 
-from django.db import transaction
-
-def resumen_carrito(request):
-    items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=request.user) 
+def calcular_precio_total_e_items_carrito(usuario):
+    items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=usuario) 
     categorias = Categoria.objects.filter(item__in=items_carrito).distinct()
     derivaciones = Derivacion.objects.filter(item__in=items_carrito).distinct()
     
@@ -183,25 +186,23 @@ def resumen_carrito(request):
     
     precio_total = precio_total_categorias + precio_total_derivaciones
     
-    for item in items_carrito:
-        CompraHistorica.objects.create(usuario=request.user, producto=item, costo=precio_total)
-    
-
-
-    return render(request, 'examenes/resumen_carritotest.html', {
+    return {
         'items_por_categoria': items_por_categoria,
         'items_por_derivacion': items_por_derivacion,
         'precio_total_categorias': precio_total_categorias,
         'precio_total_derivaciones': precio_total_derivaciones,
         'precio_total': precio_total,
-    })
+            }
 
+
+@login_required
+def resumen_carrito(request):
+    data = calcular_precio_total_e_items_carrito(request.user)
+    return render(request, 'examenes/resumen_carritotest.html', data)
 
 
 #Cambio de clave y envío de correo
-
-
-
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 from django.core.mail import send_mail
 
@@ -239,19 +240,22 @@ def custom_password_reset_confirm(request):
 def custom_password_reset_complete(request):
     return render(request, 'registration/password_reset_complete.html')
 
+#----------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 
 # Cuenta y editarla 
+#----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-@login_required
+@login_required(login_url='/login')
 def mi_cuenta(request):
     usuario = request.user
     #compras = Compra.objects.filter(usuario=usuario)
     return render(request, 'cuenta/mi_cuenta.html', {'usuario': usuario})
 
 
-@login_required
+@login_required(login_url='/login')
 def editar_perfil(request):
     usuario = request.user
     if request.method == 'POST':
@@ -265,14 +269,19 @@ def editar_perfil(request):
     return render(request, 'cuenta/editar_perfil.html', {'usuario': usuario})
 
 
-@login_required
+@login_required(login_url='/login')
 def ver_compras_usuario(request):
     # Obtener todas las compras históricas del usuario actual
     compras_usuario = CompraHistorica.objects.filter(usuario=request.user)
     
     return render(request, 'cuenta/historico.html', {'compras_usuario': compras_usuario})
 
+#----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+
+
+@login_required(login_url='/login')
 def agregar_al_carrito(request):
     if request.method == 'POST':
         elemento_id = request.POST.get('elemento_id')
@@ -281,26 +290,37 @@ def agregar_al_carrito(request):
         # Obtener el elemento (Producto o Diagnostico) según el tipo y el ID
         elemento = get_object_or_404(Item, id=elemento_id)
         
-        # Obtener el carrito del usuario o crear uno nuevo si no existe
+        # Verificar si el usuario está autenticado
         if request.user.is_authenticated:
+            # Obtener el carrito del usuario o crear uno nuevo si no existe
             carrito_usuario, _ = Carrito.objects.get_or_create(usuario=request.user)
-        else:
-            # Manejo de usuarios anónimos, si es necesario
-            pass
 
-        # Verificar si el elemento ya está en el carrito del usuario
-        if ItemCarrito.objects.filter(carrito=carrito_usuario, item=elemento).exists():
-            # Si el elemento ya está en el carrito, no es necesario mostrar ningún mensaje
-            pass
+            # Verificar si el elemento ya está en el carrito del usuario
+            ya_en_carrito = ItemCarrito.objects.filter(carrito=carrito_usuario, item=elemento).exists()
+
+            # Marcar el producto como ya agregado para usar en la plantilla
+            elemento.ya_en_carrito = ya_en_carrito
+
+            if not ya_en_carrito:
+                # Si el elemento no está en el carrito, agregarlo
+                ItemCarrito.objects.create(carrito=carrito_usuario, item=elemento)
+                messages.success(request, 'El elemento se ha añadido al carrito.')
+            else:
+                messages.warning(request, 'El elemento ya está en el carrito.')
         else:
-            # Agregar el elemento al carrito del usuario
-            ItemCarrito.objects.create(carrito=carrito_usuario, item=elemento)
-            # No se muestran mensajes
+            # Añadir un mensaje de alerta y redirigir a la página de inicio de sesión con el parámetro `next`
+            messages.error(request, 'Necesitas estar logeado para agregar productos al carrito.')
+            login_url = reverse('login')
+            current_url = request.build_absolute_uri()
+            redirect_url = f"{login_url}?next={current_url}"
+            return redirect(redirect_url)
 
     # Redireccionar a la página de la categoría del producto agregado
     return redirect(reverse('ver_productos_por_categoria', args=[elemento.categoria.id]))
 
 
+
+@login_required(login_url='/login')
 def agregar_al_carrito_derivaciones(request):
     if request.method == 'POST':
         elemento_id = request.POST.get('elemento_id')
@@ -359,7 +379,7 @@ def eliminar_derivacion(request, item_id):
 
 
 
-@login_required
+@login_required(login_url='/login')
 def generar_pdf_productos(request):
     carrito_usuario = request.user.carrito_set.first()
     
@@ -404,7 +424,7 @@ def generar_pdf_productos(request):
 
 
 
-@login_required
+@login_required(login_url='/login')
 def generar_pdf_derivaciones(request):
     carrito_usuario = request.user.carrito_set.first()
     
@@ -450,13 +470,42 @@ def generar_pdf_derivaciones(request):
         return HttpResponse("No se encontró el carrito del usuario")
 
 
+def send_email(subject, message, from_email, recipient_list, attachment_file):
+    email = EmailMessage(
+        subject=subject,
+        body=message,
+        from_email=from_email,
+        to=recipient_list
+    )
+
+    email.attach(attachment_file.name, attachment_file.read(), 'application/pdf')
+
+    email.send()
+
 
 @login_required
 def pago_exitoso(request):
-    return render(request, 'examenes/pago_exitoso.html')
+    user = request.user
+    carrito, created = Carrito.objects.get_or_create(usuario=user)
 
+    # Supongamos que el pago fue exitoso
+    pago_exitoso = True  # Aquí debería ir la lógica real del pago
 
+    if pago_exitoso:
+        for item_carrito in carrito.itemcarrito_set.all():
+            CompraHistorica.objects.create(
+                usuario=user,
+                producto=item_carrito.item,
+                fecha_compra=timezone.now(),
+                costo=0  # Asumiendo que tu modelo Item tiene un campo precio
+            )
+        
+        carrito.limpiar_carrito()
 
+        return redirect('pago_exitoso')  # Redirige a una página de confirmación de compra
+    else:
+        messages.error(request, "Hubo un problema con el pago. Por favor, inténtelo de nuevo.")
+        return redirect('resumen_carrito')
 
 
 def ver_categorias(request):
@@ -479,3 +528,27 @@ def ver_diagnosticos(request, derivacion_id):
     derivacion = get_object_or_404(Derivacion, id=derivacion_id)
     diagnosticos = Item.objects.filter(derivacion=derivacion)
     return render(request, 'derivaciones/diagnostico.html', {'derivacion': derivacion, 'diagnosticos': diagnosticos})
+
+
+
+def enviar_correo_con_adjuntos(usuario, asunto, cuerpo, pdf_productos, pdf_derivaciones):
+    # Obtener el correo electrónico del usuario
+    destinatario = usuario.email
+    
+    # Renderizar el cuerpo del correo electrónico como texto plano
+    cuerpo_plano = strip_tags(cuerpo)
+    
+    
+    # Crear el objeto EmailMessage
+    email = EmailMessage(
+        subject=asunto,
+        body=cuerpo_plano,
+        from_email='Nuuk_medical@options.cl',  # Cambia esto por tu dirección de correo electrónico
+        to=[destinatario],
+    )
+    
+    email.attach('productos.pdf', pdf_productos, 'application/pdf')
+    email.attach('derivaciones.pdf', pdf_derivaciones, 'application/pdf')
+    
+    # Enviar el correo electrónico
+    email.send(fail_silently=False)
