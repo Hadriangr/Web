@@ -502,10 +502,10 @@ def pago_exitoso(request):
         
         carrito.limpiar_carrito()
 
-        return redirect('pago_exitoso')  # Redirige a una página de confirmación de compra
+        return render(request,'examenes/pago_exitoso.html')  # Redirige a una página de confirmación de compra
     else:
         messages.error(request, "Hubo un problema con el pago. Por favor, inténtelo de nuevo.")
-        return redirect('resumen_carrito')
+        return redirect('examenes/resumen_carrito')
 
 
 def ver_categorias(request):
