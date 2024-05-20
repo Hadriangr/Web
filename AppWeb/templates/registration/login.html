@@ -2,7 +2,7 @@
 {% block title %}Log-in{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5"> <!-- Agregar márgenes arriba y abajo -->
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
@@ -33,11 +33,11 @@
                         <div class="alert alert-danger" role="alert">
                             Su Nombre y Contraseña no coinciden. Por favor intente de nuevo.
                         </div>
-                    {% else %}
+                        {% else %}
                         <p class="text-center mt-3">
-                          Si aún no está registrado, puede <a href="{% url 'registro' %}">registrarse aquí</a>.
+                            Si aún no está registrado, puede <a href="{% url 'registro' %}">registrarse aquí</a>.
                         </p>
-                    {% endif %}
+                        {% endif %}
                     </form>
                     <p class="text-center mt-3">
                         ¿Olvidó su contraseña? <a href="{% url 'password_reset' %}">Restablecer contraseña</a>

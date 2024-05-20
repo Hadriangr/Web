@@ -6,20 +6,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-5 mb-5"> <!-- Añadido mt-5 y mb-5 para espaciar el contenido del header y el footer -->
     <div class="row">
         <div class="col-md-6">
-            <h1 class="mb-4">Exámenes disponibles</h1>
-            <div class="container mt-3">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            </div>
+            <h1 class="mb-4 text-center">{{ categoria.nombre }}</h1> <!-- Añadido text-center para centrar el título -->
             {% for producto in productos %}
             <div class="card mb-3">
-                <div class="card-body">
+                <div class="card-body text-center"> <!-- Añadido text-center para centrar el contenido de la tarjeta -->
                     <h5 class="card-title">{{ producto.nombre }}</h5>
                     <p class="card-text">Precio: {{ producto.categoria.precio }}</p>
                     {% if user.is_authenticated %}
@@ -40,13 +33,21 @@
             <a href="{% url 'resumen_carrito' %}" class="btn btn-info mt-3">Ver Resumen del Carrito</a>
         </div>
         <div class="col-md-6">
-            <h2>¿Por qué solicitar {{ categoria.nombre }}?</h2>
-            <p>{{ categoria.descripcion }}</p>
+            <div class="text-format">
+                <h2 class="text-format-heading" style="text-align: center;">Información sobre Precios:</h2>
+                <p class="text-format-content"  style="text-align: justify;">¡Aprovecha nuestra tarifa única! Todos nuestros exámenes tienen un costo de $2,990 por categoría. Puedes elegir todos los exámenes que necesites dentro de una misma categoría, y el precio se mantendrá en $2,990.</p>
+            </div>
+            <br>
+            <br>
+            <div class="text-format">
+                <h2 class="text-format-heading">¿Por qué solicitar {{ categoria.nombre }}?</h2>
+                <p class="text-format-content" style="text-align: justify;">{{ categoria.descripcion|linebreaks }}</p>
+
+
+            </div>
         </div>
     </div>
 </div>
-
-
 
 <script>
     function agregarAlCarrito(productoId, button) {

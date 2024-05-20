@@ -14,6 +14,13 @@ from reportlab.pdfgen import canvas
 from django.utils.html import strip_tags
 from django.core.mail import EmailMessage,send_mail
 from django.utils import timezone
+from reportlab.lib.pagesizes import A5
+from datetime import datetime
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Spacer, PageBreak
+from reportlab.lib.units import cm
+from io import BytesIO
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 
 
 
@@ -226,15 +233,12 @@ def custom_password_reset(request):
     return render(request, 'registration/password_reset_form.html', {'form': form})
 
 
-
 def custom_password_reset_done(request):
     return render(request, 'registration/password_reset_done.html')
 
 
-
 def custom_password_reset_confirm(request):
     return render(request, 'registration/password_reset_confirm.html')
-
 
 
 def custom_password_reset_complete(request):
@@ -378,97 +382,145 @@ def eliminar_derivacion(request, item_id):
     return redirect('resumen_carrito')
 
 
+#--------------------------------------------------------------------------------------------------------------------------------------------
+#Generación de PDFS 
 
 @login_required(login_url='/login')
 def generar_pdf_productos(request):
-    carrito_usuario = request.user.carrito_set.first()
+    productos_carrito = request.session.get('productos_carrito', None)
     
-    if carrito_usuario:
-        # Organizar los productos por categoría
-        categorias = Categoria.objects.all()
-        productos_por_categoria = {}
-        for categoria in categorias:
-            productos_por_categoria[categoria] = ItemCarrito.objects.filter(item__categoria=categoria, carrito=carrito_usuario)
-        
-        # Generar PDF con los productos organizados por categoría
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
-        p = canvas.Canvas(response)
-        y = 800
+    if not productos_carrito:
+        return HttpResponse("No se encontraron productos en el carrito.")
 
-        if carrito_usuario:
-            nombre = carrito_usuario.usuario.nombre
-            apellido = carrito_usuario.usuario.apellido
-            rut = carrito_usuario.usuario.rut  # Asumiendo que el rut está almacenado en el campo username
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
 
-        # Agregar información del usuario al PDF
-        p.drawString(100, y, f'Nombre: {nombre}')
-        y -= 20
-        p.drawString(100, y, f'Apellido: {apellido}')
-        y -= 20
-        p.drawString(100, y, f'RUT: {rut}')
-        y -= 20
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A5)  # Tamaño de página A5
 
-        for categoria, items in productos_por_categoria.items():
-            if items:
-                p.drawString(100, y, f' {categoria.nombre}')
-                y -= 20
-                for item_carrito in items:
-                    p.drawString(120, y, item_carrito.item.nombre)  
-                    y -= 20
-        p.save()
-        return response
+    elements = []
 
-    else:
-        return HttpResponse("No se encontró el carrito del usuario")
+    # Estilos
+    styles = getSampleStyleSheet()
+    header_style = styles['Heading1']
+    normal_style = styles['BodyText']
 
+    # Header
+    header = Paragraph("Nuuk Medical", header_style)
+    elements.append(header)
+    elements.append(Spacer(1, 7))
+
+    # Datos del usuario
+    nombre = request.user.nombre
+    apellido = request.user.apellido
+    rut = request.user.rut
+    direccion = request.user.direccion
+    comuna = request.user.comuna
+    fecha_nacimiento = request.user.fecha_nacimiento
+    edad = datetime.now().year - fecha_nacimiento.year
+    fecha_actual = datetime.now().strftime("%d/%m/%Y")
+
+    user_info = [
+        ["Nombre:", f"{nombre} {apellido}", "Edad:", f"{edad} años"],
+        ["Domicilio:", direccion, "Ciudad:", comuna],
+        ["RUT:", rut, "Fecha:", fecha_actual]
+    ]
+    user_table = Table(user_info, colWidths=[2 * cm, 4 * cm, 2 * cm, 2 * cm])  # Ajustar los anchos de las columnas según el contenido
+    elements.append(user_table)
+    elements.append(Spacer(1, 7))
+
+    # Productos del carrito
+    elements.append(Paragraph("", header_style))
+    elements.append(Spacer(1, 7))
+
+    # Organizar los productos por categoría
+    productos_por_categoria = {}
+    for producto in productos_carrito:
+        categoria = producto['item__categoria__nombre']
+        if categoria not in productos_por_categoria:
+            productos_por_categoria[categoria] = []
+        productos_por_categoria[categoria].append(producto['item__nombre'])
+
+    for categoria, productos in productos_por_categoria.items():
+        elements.append(Paragraph(f"Categoría: {categoria}", normal_style))
+        for producto in productos:
+            elements.append(Paragraph(producto, normal_style))
+            # Verificar si hay espacio suficiente para más productos en esta página
+            if buffer.tell() > A5[1] * 0.7:  # 70% del alto de la página A5
+                elements.append(PageBreak())  # Agregar un salto de página
+                elements.append(header)  # Reagregar el encabezado en la nueva página
+                elements.append(user_table)  # Reagregar los datos del usuario en la nueva página
+
+    # Construir el documento
+    doc.build(elements)
+
+    response.write(buffer.getvalue())
+    buffer.close()
+
+    return response
 
 
 @login_required(login_url='/login')
 def generar_pdf_derivaciones(request):
-    carrito_usuario = request.user.carrito_set.first()
+    derivaciones_carrito = request.session.get('derivaciones_carrito', None)
     
-    if carrito_usuario:
-        # Organizar las derivaciones por categoría
-        derivaciones = Derivacion.objects.all()
-        derivaciones_por_categoria = {}
-        for derivacion in derivaciones:
-            derivaciones_por_categoria[derivacion] = ItemCarrito.objects.filter(item__derivacion=derivacion, carrito=carrito_usuario)
-        
-        # Generar PDF con las derivaciones organizadas por categoría
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="derivaciones.pdf"'
-        p = canvas.Canvas(response)
-        y = 800
+    if not derivaciones_carrito:
+        return HttpResponse("No se encontraron derivaciones en el carrito.")
 
-        if carrito_usuario:
-            nombre = carrito_usuario.usuario.nombre
-            apellido = carrito_usuario.usuario.apellido
-            rut = carrito_usuario.usuario.rut  # Asumiendo que el rut está almacenado en el campo username
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="derivaciones.pdf"'
+    p = canvas.Canvas(response, pagesize=A5)
+    width, height = A5
+    y = height - inch
 
-        # Agregar información del usuario al PDF
-        p.drawString(100, y, f'Nombre: {nombre}')
+    nombre = request.user.nombre
+    apellido = request.user.apellido
+    rut = request.user.rut
+    direccion = request.user.direccion
+    comuna = request.user.comuna
+    fecha_nacimiento = request.user.fecha_nacimiento
+    edad = datetime.now().year - fecha_nacimiento.year
+    fecha_actual = datetime.now().strftime("%d/%m/%Y")
+
+    # Header information
+    p.drawString(40, y, "Nuuk Medical")
+    y -= 20
+    p.drawString(40, y, f"Sr.(a) {nombre} {apellido}")
+    y -= 20
+    p.drawString(40, y, f"Edad: {edad} años")
+    y -= 20
+    p.drawString(40, y, f"Domicilio: {direccion}")
+    y -= 20
+    p.drawString(40, y, f"Ciudad: {comuna}")
+    y -= 20
+    p.drawString(40, y, f"RUT: {rut}")
+    y -= 20
+    p.drawString(40, y, f"Fecha: {fecha_actual}")
+    y -= 40
+
+    # Derivaciones del carrito
+    p.drawString(40, y, "Se solicita evaluación por especialidad:")
+    y -= 20
+
+    # Organizar las derivaciones por nombre de derivación
+    derivaciones_por_nombre = {}
+    for derivacion in derivaciones_carrito:
+        nombre_derivacion = derivacion['item__derivacion__nombre']
+        if nombre_derivacion not in derivaciones_por_nombre:
+            derivaciones_por_nombre[nombre_derivacion] = []
+        derivaciones_por_nombre[nombre_derivacion].append(derivacion['item__nombre'])
+
+    for nombre_derivacion, items in derivaciones_por_nombre.items():
+        p.drawString(40, y, f"Derivación: {nombre_derivacion}")
         y -= 20
-        p.drawString(100, y, f'Apellido: {apellido}')
-        y -= 20
-        p.drawString(100, y, f'RUT: {rut}')
-        y -= 20
-        p.drawString(100,y,f'Se solicita evaluación por especialidad.')
-        y -=40
-        for derivacion, items in derivaciones_por_categoria.items():
-            if items:
-                p.drawString(100, y, f'Derivación: {derivacion.nombre}')
-                y -= 20
-                for item_carrito in items:
-                    p.drawString(120, y, item_carrito.item.descripcion)  
-                    y -= 20
-        
-        p.save()
-        return response
+        for item in items:
+            p.drawString(60, y, item)
+            y -= 20
 
-    else:
-        return HttpResponse("No se encontró el carrito del usuario")
+    p.save()
+    return response
 
+#--------------------------------------------------------------------------------------------------------------------------------------
 
 def send_email(subject, message, from_email, recipient_list, attachment_file):
     email = EmailMessage(
@@ -483,7 +535,8 @@ def send_email(subject, message, from_email, recipient_list, attachment_file):
     email.send()
 
 
-@login_required
+
+@login_required(login_url='/login')
 def pago_exitoso(request):
     user = request.user
     carrito, created = Carrito.objects.get_or_create(usuario=user)
@@ -492,6 +545,15 @@ def pago_exitoso(request):
     pago_exitoso = True  # Aquí debería ir la lógica real del pago
 
     if pago_exitoso:
+        # Guardar los productos del carrito en la sesión
+        productos_carrito = list(carrito.itemcarrito_set.filter(item__categoria__isnull=False).values('item__nombre', 'item__categoria__nombre'))
+        request.session['productos_carrito'] = productos_carrito
+        
+        # Guardar las derivaciones del carrito en la sesión
+        derivaciones_carrito = list(carrito.itemcarrito_set.filter(item__derivacion__isnull=False).values('item__nombre', 'item__derivacion__nombre'))
+        request.session['derivaciones_carrito'] = derivaciones_carrito
+
+        # Registrar la compra en CompraHistorica
         for item_carrito in carrito.itemcarrito_set.all():
             CompraHistorica.objects.create(
                 usuario=user,
@@ -499,10 +561,11 @@ def pago_exitoso(request):
                 fecha_compra=timezone.now(),
                 costo=0  # Asumiendo que tu modelo Item tiene un campo precio
             )
-        
+
+        # Limpiar el carrito después de registrar la compra
         carrito.limpiar_carrito()
 
-        return render(request,'examenes/pago_exitoso.html')  # Redirige a una página de confirmación de compra
+        return render(request, 'examenes/pago_exitoso.html')  # Redirige a una página de confirmación de compra
     else:
         messages.error(request, "Hubo un problema con el pago. Por favor, inténtelo de nuevo.")
         return redirect('examenes/resumen_carrito')

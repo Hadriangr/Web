@@ -21,7 +21,9 @@
     <body>
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href="{% url 'index' %}">Nuuk Medical</a> <!-- Enlace al inicio -->
+                <a class="navbar-brand" href="{% url 'index' %}">
+                    <img src="{% static 'assets/img/nuukmedical.jpg' %}" alt="Nuuk Medical" style="height: 40px;">
+                </a>
                 <a class="navbar-brand" href="{% url 'index' %}">Sobre Nosotros</a>
                 <a class="navbar-brand" href="{% url 'ver_categorias' %}">Solicitar Examenes</a>
                 <a class="navbar-brand" href="{% url 'derivaciones' %}">Solicitar Derivaciones</a>
@@ -62,7 +64,7 @@
     {% endblock %}
 
     <!-- Sección con imagen de fondo -->
-    <section class="masthead" style="background-image: url('{% static "assets/img/fondo.jpg" %}');">
+    <section class="masthead" style="background-image: url('{% static 'assets/img/fondo.jpg' %}');">
     </section>
 
     <!-- Sección de llamado a la acción -->
@@ -82,18 +84,17 @@
             <div class="row">
                 <div class="col-lg-6 h-100 text-center text-lg-start my-auto">
                     <ul class="list-inline mb-2">
-                        <li class="list-inline-item"><a href="#!">About</a></li>
+                        <li class="list-inline-item"><a href="{% url 'index' %}">Inicio</a></li>
                         <li class="list-inline-item">⋅</li>
-                        <li class="list-inline-item"><a href="#!">Contact</a></li>
+                        <li class="list-inline-item"><a href="{% url 'ver_categorias' %}">Solicitar Exámenes</a></li>
                         <li class="list-inline-item">⋅</li>
-                        <li class="list-inline-item"><a href="#!">Terms of Use</a></li>
-                        <li class="list-inline-item">⋅</li>
-                        <li class="list-inline-item"><a href="#!">Privacy Policy</a></li>
+                        <li class="list-inline-item"><a href="{% url 'derivaciones' %}">Solicitar Derivaciones</a></li>
                     </ul>
-                    <p class="text-muted small mb-4 mb-lg-0">&copy; Your Website 2023. All Rights Reserved.</p>
+                    <p class="text-muted small mb-4 mb-lg-0">&copy; Nuuk Medical 2024. Todos los derechos reservados</p>
                 </div>
                 <div class="col-lg-6 h-100 text-center text-lg-end my-auto">
                     <ul class="list-inline mb-0">
+                        <img src="{% static 'assets/img/transbank.jpg' %}">
                         <li class="list-inline-item me-4">
                             <a href="#!"><i class="bi-facebook fs-3"></i></a>
                         </li>

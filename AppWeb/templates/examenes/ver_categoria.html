@@ -6,23 +6,69 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    /* Contenedor de la tarjeta para que todas tengan la misma altura */
+    .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        text-align: center; /* Centrar texto dentro de la tarjeta */
+    }
+
+    /* Imagen para asegurarse de que todas tengan la misma altura y se recorten adecuadamente */
+    .card-img-top {
+        height: 200px; /* Ajusta la altura según tus necesidades */
+        object-fit: cover; /* Mantiene la proporción de la imagen y recorta el exceso */
+    }
+
+    /* Cuerpo de la tarjeta para expandir y llenar el espacio disponible */
+    .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center; /* Centrar el contenido horizontalmente */
+    }
+
+    /* Estilo para agrandar el precio */
+    .card-text.price {
+        font-size: 1.25rem; /* Ajusta el tamaño según tus necesidades */
+        font-weight: bold;
+    }
+
+    /* Centrar el botón en la parte inferior */
+    .btn-container {
+        width: 100%;
+    }
+
+    .main-header {
+        margin-top: 3rem; /* Ajusta el margen superior según tus necesidades */
+        text-align: center; /* Centra el texto */
+    }
+
+
+    .btn-container .btn {
+        width: 80%; /* Ajusta el ancho según tus necesidades */
+    }
+</style>
+
 <div class="container">
-    <h1 class="mb-4">Examenes</h1>
+    <h1 class="main-header mb-4">Categorias de exámenes</h1>
     <div class="row">
         {% for categoria in categorias %}
         <div class="col-lg-4 mb-4">
             <div class="card rounded">
                 {% if categoria.imagen_url %}
                 <a href="{% url 'ver_productos_por_categoria' categoria.id %}">
-                    <div style="height: 257px; overflow: hidden;">
+                    <div style="height: 200px; overflow: hidden;">
                         <img src="{{ categoria.imagen_url }}" class="card-img-top img-fluid" alt="{{ categoria.nombre }}">
                     </div>
                 </a>
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{ categoria.nombre }}</h5>
-                    <p class="card-text text-center">Precio: {{ categoria.precio }}</p>
-                    <div class="text-center">
+                    <p class="card-text price">Precio: ${{ categoria.precio }}</p>
+                    <div class="btn-container mt-auto">
                         <a href="{% url 'ver_productos_por_categoria' categoria.id %}" class="btn btn-primary">Ver más</a>
                     </div>
                 </div>

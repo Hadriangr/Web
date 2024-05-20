@@ -6,13 +6,25 @@
 {% endblock %}
 
 {% block content %}
-
-<h1>Bienvenido, {{ usuario.nombre }}</h1>
-<ul>
-<a href="{% url 'historico' %}">Ver compras realizadas</a>
-
-</ul>
-
-<a href="{% url 'editar_perfil' %}">Editar perfil</a>
-
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h4 class="mb-4">Bienvenido, {{ usuario.nombre }}</h4>
+                    <div class="mt-4">
+                        <a href="{% url 'historico' %}" class="btn btn-primary rounded-pill">
+                            Ver compras realizadas
+                        </a>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{% url 'editar_perfil' %}" class="btn btn-primary rounded-pill">
+                            Editar perfil
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

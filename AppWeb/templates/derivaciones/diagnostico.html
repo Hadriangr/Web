@@ -1,5 +1,3 @@
-
-
 {% extends 'base.html' %}
 {% load static %}
 
@@ -7,16 +5,14 @@
     Lista de Diagnósticos
 {% endblock %}
 
-
 {% block content %}
-
-<div class="container">
+<div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-6">
-            <h1 class="mb-4">Diagnósticos disponibles</h1>
+            <h1 class="mb-4 text-center">{{ derivacion.nombre }}</h1>
             {% for diagnostico in diagnosticos %}
             <div class="card mb-3">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">{{ diagnostico.nombre }}</h5>
                     <p class="card-text">Precio: {{ diagnostico.derivacion.precio }}</p>
                     {% if user.is_authenticated %}
@@ -24,14 +20,12 @@
                         {% csrf_token %}
                         <input type="hidden" name="elemento_id" value="{{ diagnostico.id }}">
                         <input type="hidden" name="tipo" value="diagnostico">
-                        <button type="button" class="btn btn-primary btn-sm agregar-al-carrito-btn" onclick="agregarAlCarrito('{{ diagnostico.id }}', this); this.disabled=true;">
+                        <button type="button" class="btn btn-primary btn-sm btn-agregar" onclick="agregarAlCarrito('{{ diagnostico.id }}', this); this.disabled=true;">
                             Agregar al carrito
                         </button>
                     </form>
                     {% else %}
-                    <button type="button" class="btn btn-primary btn-sm" onclick="agregarAlCarrito()">
-                        Agregar al carrito
-                    </button>
+                      <button type="button" onclick="agregarAlCarrito('{{ producto.id }}')">Agregar al carrito</button>
                     {% endif %}
                 </div>
             </div>
@@ -39,60 +33,42 @@
             <a href="{% url 'resumen_carrito' %}" class="btn btn-info mt-3">Ver Resumen del Carrito</a>
         </div>
         <div class="col-md-6">
-            <h2>¿Por qué solicitar {{ derivacion.nombre }}?</h2>
+            <div class="text-format">
+                <h2 class="text-format-heading" style="text-align: center;">Información sobre Precios:</h2>
+                <p class="text-format-content" style="text-align: justify;">¡Aprovecha nuestra tarifa única! Todos nuestros diagnosticos tienen un costo de $1,500 por derivacion. Puedes elegir todos los diagnosticos que necesites dentro de una misma derivación, y el precio se mantendrá en $1,500.</p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="container mt-3">
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-            {{ message }}
-        </div>
-    {% endfor %}
-</div>
-
 <script>
     function agregarAlCarrito(productoId, button) {
-        // Verificar si el usuario está autenticado
         {% if user.is_authenticated %}
-            // Si está autenticado, enviar el formulario correspondiente usando AJAX
             var form = button.closest('form') || document.querySelector('.agregar-al-carrito-form[data-producto-id="' + productoId + '"]');
             var formData = new FormData(form);
-    
-            // Crear una instancia de XMLHttpRequest
+
             var xhr = new XMLHttpRequest();
-    
-            // Configurar la solicitud AJAX
             xhr.open('POST', form.action);
-    
-            // Definir lo que sucede en la respuesta del servidor
+
             xhr.onload = function () {
                 if (xhr.status === 200) {
-                    // La solicitud fue exitosa, realizar acciones adicionales si es necesario
                     button.disabled = true;
                     button.innerText = 'Agregado';
                     setTimeout(function () {
                         button.disabled = false;
                         button.innerText = 'Agregar al carrito';
-                    }, 50000); // Después de 5 segundos, habilitar el botón nuevamente
+                    }, 5000); // Después de 5 segundos, habilitar el botón nuevamente
                 } else {
-                    // La solicitud falló, mostrar un mensaje de error si es necesario
                     console.error('Error al agregar el producto al carrito');
                 }
             };
-    
-            // Enviar la solicitud AJAX con los datos del formulario
+
             xhr.send(formData);
         {% else %}
-            // Si no está autenticado, mostrar un mensaje de alerta
             alert('Necesitas estar logeado para agregar productos al carrito.');
-            // Redirigirlo a la página de inicio de sesión con el parámetro 'next' para regresar a la página actual después del inicio de sesión
             window.location.href = "{% url 'login' %}?next={{ request.path }}";
         {% endif %}
     }
 </script>
-
-
 
 {% endblock %}

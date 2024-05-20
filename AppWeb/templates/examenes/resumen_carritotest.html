@@ -6,7 +6,15 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<style>
+    /* Añadir margen superior e inferior al contenedor del resumen del carrito */
+    .cart-summary-container {
+        margin-top: 3rem; /* Ajusta el margen superior según tus necesidades */
+        margin-bottom: 3rem; /* Ajusta el margen inferior según tus necesidades */
+    }
+</style>
+
+<div class="container cart-summary-container">
     <div class="row">
         <div class="col-md-8 offset-md-2">
             <div class="card">
