@@ -6,59 +6,73 @@
 {% endblock %}
 
 {% block content %}
-<h1>Resumen del Carrito</h1>
+<style>
+    /* Añadir margen superior e inferior al contenedor del resumen del carrito */
+    .cart-summary-container {
+        margin-top: 3rem; /* Ajusta el margen superior según tus necesidades */
+        margin-bottom: 3rem; /* Ajusta el margen inferior según tus necesidades */
+    }
+</style>
 
-<!-- Mostrar ítems de Categoría -->
-<h2>Examenes:</h2> <br>
-<ul>
-    {% for categoria, items in items_por_categoria.items %}
-    <h3>{{ categoria.nombre }}</h3>
-    <ul>
-        {% for item in items %}
-        <li>
-            {{ item.nombre }} 
-            <form class="eliminar-form" action="{% url 'eliminar_producto' item.pk %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Eliminar</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-    {% endfor %}
-    <h4>Precio Total de Exámenes: {{ precio_total_categorias }}</h4>
-</ul>
+<div class="container cart-summary-container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Resumen del Carrito</h2>
+                </div>
+                <div class="card-body">
+                    <h3>Examenes:</h3>
+                    <ul class="list-group">
+                        {% for categoria, items in items_por_categoria.items %}
+                        <li class="list-group-item">
+                            <h4>{{ categoria.nombre }} ${{ categoria.precio }}</h4>
+                            <ul class="list-group">
+                                {% for item in items %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ item.nombre }}
+                                    <form class="eliminar-form" action="{% url 'eliminar_producto' item.pk %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+                        <li class="list-group-item">Precio Total de Exámenes: {{ precio_total_categorias }}</li>
+                    </ul>
 
-<!-- Mostrar ítems de Derivación -->
-<h2>Derivaciones:</h2> <br>
-<ul>
-    {% for derivacion, items_derivacion in items_por_derivacion.items %}
-    <h3>{{ derivacion.nombre }}</h3>
-    <ul>
-        {% for item in items_derivacion %}
-        <li>
-            {{ item.nombre }} 
-            <form class="eliminar-form" action="{% url 'eliminar_derivacion' item.pk %}" method="post">
-                {% csrf_token %}
-                <button type="submit">Eliminar</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-    {% endfor %}
-    <h4>Precio Total de Derivaciones: {{ precio_total_derivaciones }}</h4>
-</ul>
+                    <h3>Derivaciones:</h3>
+                    <ul class="list-group">
+                        {% for derivacion, items_derivacion in items_por_derivacion.items %}
+                        <li class="list-group-item">
+                            <h4>{{ derivacion.nombre }} ${{ derivacion.precio }} </h4>
+                            <ul class="list-group">
+                                {% for item in items_derivacion %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ item.nombre }}
+                                    <form class="eliminar-form" action="{% url 'eliminar_derivacion' item.pk %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                                    </form>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+                        <li class="list-group-item">Precio Total de Derivaciones: {{ precio_total_derivaciones }}</li>
+                    </ul>
 
-<h4>Precio Total del Carrito: {{ precio_total }}</h4>
+                    <h4>Precio Total del Carrito: {{ precio_total }}</h4>
 
-<!-- Botón de Pagar -->
-<form method="get" action="{% url 'pago_exitoso' %}">
-    {% csrf_token %}
-    <button type="submit" {% if items_por_categoria|length == 0 and items_por_derivacion|length == 0 %}disabled{% endif %}>Pagar</button>
-</form>
-
-
-<!-- Formulario de Inicio de Sesión / Registro -->
-<div>
-
+                    <form method="get" action="{% url 'pago_exitoso' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary" {% if items_por_categoria|length == 0 and items_por_derivacion|length == 0 %}disabled{% endif %}>Pagar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

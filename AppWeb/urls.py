@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 from .views import *
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -34,4 +35,5 @@ urlpatterns = [
     path('generar-pdf-productos/', views.generar_pdf_productos, name='generar_pdf_productos'),
     path('generar-pdf-derivaciones/', views.generar_pdf_derivaciones, name='generar_pdf_derivaciones'),
 ]
+
 

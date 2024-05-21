@@ -1,2 +1,9 @@
 *.tmp
 *.log
+
+# Ignorar archivos .pyc
+*.pyc
+__pycache__/
+
+# Ignorar base de datos SQLite
+db.sqlite3

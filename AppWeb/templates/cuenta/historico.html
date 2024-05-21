@@ -5,75 +5,64 @@
 Editar perfil
 {% endblock %}
 
-{% block head %}
+{% block content %}
 <style>
-    /* Estilos para el contenedor de compras */
-    .compras-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        background-color: #f9f9f9;
+    /* Estilo personalizado para la tabla de compras */
+    .compras-table-container {
+        margin-top: 3rem; /* Ajusta el margen superior según tus necesidades */
+        margin-bottom: 3rem; /* Ajusta el margen inferior según tus necesidades */
+        border-radius: 15px; /* Bordes redondeados */
+        overflow: hidden; /* Evita que la tabla se extienda completamente a los lados */
     }
 
-    /* Estilos para la tabla de compras */
     .compras-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
+        width: 100%; /* Utiliza todo el ancho del contenedor */
     }
 
     .compras-table th,
     .compras-table td {
-        border: 1px solid #ddd;
-        padding: 8px;
+        padding: 10px; /* Espaciado interno */
+        text-align: left; /* Alineación del texto */
+        border: 1px solid #ddd; /* Borde de la celda */
     }
 
     .compras-table th {
-        background-color: #f2f2f2;
-        text-align: left;
+        background-color: #f2f2f2; /* Color de fondo para las celdas del encabezado */
     }
 
-    .compras-table tr:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-
-    .compras-table tr:hover {
-        background-color: #ddd;
+    .compras-table tbody tr:last-child td {
+        border-bottom: none; /* Eliminar borde inferior de la última fila */
     }
 </style>
-{% endblock %}
 
-{% block content %}
-<h1>Compras realizadas por {{ request.user.nombre }}</h1>
+<div class="container compras-table-container">
+    <h1>Compras realizadas por {{ request.user.nombre }}</h1>
     
-{% if compras_usuario %}
-<table class="compras-table">
-    <thead>
-        <tr>
-            <th>Producto</th>
-            <th>Fecha de compra</th>
-            <th>Hora de compra</th>
-            <th>Costo</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for compra in compras_usuario %}
-        <tr>
-            <td>{{ compra.producto }}</td>
-            <td>{{ compra.fecha_compra|date:"Y-m-d" }}</td>
-            <td>{{ compra.fecha_compra|time:"H:i:s" }}</td>
-            <td>{{ compra.costo }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4">No hay compras realizadas.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No hay compras realizadas.</p>
-{% endif %}
+    {% if compras_usuario %}
+    <table class="compras-table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Fecha de compra</th>
+                <th>Hora de compra</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for compra in compras_usuario %}
+            <tr>
+                <td>{{ compra.producto }}</td>
+                <td>{{ compra.fecha_compra|date:"Y-m-d" }}</td>
+                <td>{{ compra.fecha_compra|time:"H:i:s" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No hay compras realizadas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No hay compras realizadas.</p>
+    {% endif %}
+</div>
 {% endblock %}

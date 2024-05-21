@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block title %}Log-in{% endblock %}
-
+{% load static %}
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5"> <!-- Agregar márgenes arriba y abajo -->
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
@@ -25,18 +25,21 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <input type="hidden" name="next" value="{{ next }}">
                             <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+                            <img src="{% static 'assets/img/nuukmedical.jpg' %}" alt="Nuuk Medical" style="display: block; margin: 20px auto 10px; height: 50px;">
+
                         </div>
                         <input type="hidden" name="next" value="{{ next }}" />
                         {% if form.errors %}
                         <div class="alert alert-danger" role="alert">
                             Su Nombre y Contraseña no coinciden. Por favor intente de nuevo.
                         </div>
-                    {% else %}
+                        {% else %}
                         <p class="text-center mt-3">
-                          Si aún no está registrado, puede <a href="{% url 'registro' %}">registrarse aquí</a>.
+                            Si aún no está registrado, puede <a href="{% url 'registro' %}">registrarse aquí</a>.
                         </p>
-                    {% endif %}
+                        {% endif %}
                     </form>
                     <p class="text-center mt-3">
                         ¿Olvidó su contraseña? <a href="{% url 'password_reset' %}">Restablecer contraseña</a>

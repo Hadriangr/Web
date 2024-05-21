@@ -6,69 +6,117 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<style>
+    .custom-select {
+        width: 100%;
+        font-size: 16px;
+    }
+    
+    .card {
+        border-radius: 15px; /* Redondear las esquinas del cuadro */
+        background-color: #f0f8ff; /* Color de fondo azul claro */
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+
+    .form-container {
+        margin-top: 50px; /* Espacio más amplio entre el formulario y el encabezado */
+        margin-bottom: 50px; /* Espacio entre el formulario y el footer */
+    }
+
+    .text-center {
+        text-align: center; /* Centrar el texto */
+    }
+
+    /* Estilos personalizados para el formulario */
+    .formulario-card {
+        margin-top: 50px; /* Espacio más amplio entre el formulario y el encabezado */
+        margin-bottom: 50px; /* Espacio entre el formulario y el footer */
+    }
+
+    .formulario-card-body {
+        padding: 20px;
+    }
+
+    .formulario-titulo {
+        text-align: center; /* Centrar el título del formulario */
+    }
+
+    .formulario-group {
+        margin-bottom: 20px; /* Espacio entre los elementos del formulario */
+    }
+</style>
+<div class="container mt-5 form-container">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="id_nombre">Nombre</label>
-                    <input type="text" class="form-control" id="id_nombre" name="nombre" placeholder="Ingrese su nombre">
+            <div class="card formulario-card">
+                <div class="card-body formulario-card-body ">
+                    <form method="post">
+                        <h3 class="formulario-titulo">Crear cuenta</h3>
+                        <p class="text-center">Si ya tienes una cuenta puedes <a href="{% url 'login' %}">Iniciar Sesión</a></p>
+                        {% csrf_token %}
+                        <div class="formulario-group">
+                            <label for="id_nombre">Nombre</label>
+                            <input type="text" class="form-control" id="id_nombre" name="nombre" placeholder="Ingrese su nombre">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_apellido">Apellido</label>
+                            <input type="text" class="form-control" id="id_apellido" name="apellido" placeholder="Ingrese su apellido">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_email">Email</label>
+                            <input type="email" class="form-control" id="id_email" name="email" placeholder="Ingrese su email">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_email_confirm">Confirmar Email</label>
+                            <input type="email" class="form-control" id="id_email_confirm" name="email_confirm" placeholder="Confirme su email">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_region">Región</label>
+                            <input type="text" class="form-control" id="id_region" name="region" placeholder="Ingrese su región">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_comuna">Comuna</label>
+                            <input type="text" class="form-control" id="id_comuna" name="comuna" placeholder="Ingrese su comuna">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_direccion">Dirección</label>
+                            <input type="text" class="form-control" id="id_direccion" name="direccion" placeholder="Ingrese su dirección">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_telefono_contacto">Teléfono de Contacto</label>
+                            <input type="text" class="form-control" id="id_telefono_contacto" name="telefono_contacto" placeholder="Ingrese su teléfono de contacto">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_fecha_nacimiento">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="id_fecha_nacimiento" name="fecha_nacimiento">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_rut">RUT</label>
+                            <input type="text" class="form-control" id="id_rut" name="rut" placeholder="Ingrese su RUT">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_genero">Género</label>
+                            <select class="form-control custom-select" id="id_genero" name="genero">
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                                <option value="O">Otro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_password1">Contraseña</label>
+                            <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Ingrese su contraseña">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_password2">Confirmar Contraseña</label>
+                            <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Confirme su contraseña">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+                    </form>
                 </div>
-                <div class="form-group">
-                    <label for="id_apellido">Apellido</label>
-                    <input type="text" class="form-control" id="id_apellido" name="apellido" placeholder="Ingrese su apellido">
-                </div>
-                <div class="form-group">
-                    <label for="id_email">Email</label>
-                    <input type="email" class="form-control" id="id_email" name="email" placeholder="Ingrese su email">
-                </div>
-                <div class="form-group">
-                    <label for="id_email_confirm">Confirmar Email</label>
-                    <input type="email" class="form-control" id="id_email_confirm" name="email_confirm" placeholder="Confirme su email">
-                </div>
-                <div class="form-group">
-                    <label for="id_region">Región</label>
-                    <input type="text" class="form-control" id="id_region" name="region" placeholder="Ingrese su región">
-                </div>
-                <div class="form-group">
-                    <label for="id_comuna">Comuna</label>
-                    <input type="text" class="form-control" id="id_comuna" name="comuna" placeholder="Ingrese su comuna">
-                </div>
-                <div class="form-group">
-                    <label for="id_direccion">Dirección</label>
-                    <input type="text" class="form-control" id="id_direccion" name="direccion" placeholder="Ingrese su dirección">
-                </div>
-                <div class="form-group">
-                    <label for="id_telefono_contacto">Teléfono de Contacto</label>
-                    <input type="text" class="form-control" id="id_telefono_contacto" name="telefono_contacto" placeholder="Ingrese su teléfono de contacto">
-                </div>
-                <div class="form-group">
-                    <label for="id_fecha_nacimiento">Fecha de Nacimiento</label>
-                    <input type="date" class="form-control" id="id_fecha_nacimiento" name="fecha_nacimiento">
-                </div>
-                <div class="form-group">
-                    <label for="id_rut">RUT</label>
-                    <input type="text" class="form-control" id="id_rut" name="rut" placeholder="Ingrese su RUT">
-                </div>
-                <div class="form-group">
-                    <label for="id_genero">Género</label>
-                    <select class="form-control" id="id_genero" name="genero">
-                        <option value="M">Masculino</option>
-                        <option value="F">Femenino</option>
-                        <option value="O">Otro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="id_password1">Contraseña</label>
-                    <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Ingrese su contraseña">
-                </div>
-                <div class="form-group">
-                    <label for="id_password2">Confirmar Contraseña</label>
-                    <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Confirme su contraseña">
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
-            </form>
+            </div>
         </div>
     </div>
 </div>

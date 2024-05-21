@@ -21,9 +21,11 @@
     <body>
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
-                <a class="navbar-brand" href="{% url 'index' %}">Nuuk Medical</a> <!-- Enlace al inicio -->
+                <a class="navbar-brand" href="{% url 'index' %}">
+                    <img src="{% static 'assets/img/nuukmedical.jpg' %}" alt="Nuuk Medical" style="height: 40px;">
+                </a>
                 <a class="navbar-brand" href="{% url 'index' %}">Sobre Nosotros</a>
-                <a class="navbar-brand" href="{% url 'ver_categorias' %}">Solicitar Examenes</a>
+                <a class="navbar-brand" href="{% url 'ver_categorias' %}">Solicitar Exámenes</a>
                 <a class="navbar-brand" href="{% url 'derivaciones' %}">Solicitar Derivaciones</a>
                 
                 {% if request.user.is_authenticated %}
@@ -33,24 +35,32 @@
                         Hola {{ request.user.nombre|default:request.user.username }} {{ request.user.apellido|default:'' }}
                     </a>
                     <!-- Cambiar el botón 'Mi cuenta' para que te lleve a 'carrito' -->
-                    <a href="{% url 'resumen_carrito' %}" class="btn btn-outline-dark">Mi carrito</a> 
-                    <a href="{% url 'logout' %}" class="btn btn-outline-secondary">Cerrar sesión</a> 
+                    <a href="{% url 'resumen_carrito' %}" class="btn btn-outline-dark custom-btn">Mi carrito</a> 
+                    <a href="{% url 'logout' %}" class="btn btn-outline-secondary custom-btn">Cerrar sesión</a> 
                 </div>
-            {% else %}
-                <a class="btn btn-outline-primary" href="{% url 'login' %}">Iniciar Sesión</a> 
-            {% endif %}
-            </div>
-        </nav>
+                {% else %}
+                <a class="btn btn-outline-primary custom-btn" href="{% url 'login' %}">Iniciar Sesión</a> 
+                {% endif %}
+                </div>
+                </nav>
+                
+                <style>
+                    .custom-btn {
+                        padding: 5px 10px; /* Ajusta el padding para hacer los botones más delgados */
+                        font-size: 14px; /* Ajusta el tamaño de la fuente si es necesario */
+                        margin-left: 10px; /* Agrega un margen izquierdo para separar los botones del texto */
+                    }
+                </style>
         
     
     <!-- Masthead-->
-    <header class="masthead">
+    <header class="masthead" style="background-image: url('{% static "assets/img/fondo.jpg" %}');">
         <div class="container position-relative">
             <div class="row justify-content-center">
                 <div class="col-xl-6">
                     <div class="text-center text-white">
                         <!-- Page heading-->
-                        <h1 class="mb-5">Tu Web medica de confianza!</h1>
+                        <h1 class="mb-5"></h1>
                     </div>
                 </div>
             </div>
@@ -62,16 +72,17 @@
     {% endblock %}
 
     <!-- Sección con imagen de fondo -->
-    <section class="background-image">
-        <!-- Contenido adicional opcional -->
+    <section class="masthead" style="background-image: url('{% static 'assets/img/fondo.jpg' %}');">
     </section>
 
     <!-- Sección de llamado a la acción -->
-    <section class="call-to-action text-white text-center" id="signup">
+    <section class="call-to-action text-white text-center" style="background-image: url('{% static "assets/img/fondo.jpg" %}');" id="signup">
         <div class="container position-relative">
             <div class="row justify-content-center">
-                <div class="col-xl-6">
-                    <h2 class="mb-4">Ready to get started? Sign up now!</h2>
+                <div class="text-center text-white">
+                    <h1>Tu salud, nuestra prioridad</h1>
+                    <h2>Obtén tus recetas médicas sin salir de casa por tan solo $2.990</h2>
+                    <h1 class="mb-5"></h1>
                 </div>
             </div>
         </div>
@@ -83,18 +94,17 @@
             <div class="row">
                 <div class="col-lg-6 h-100 text-center text-lg-start my-auto">
                     <ul class="list-inline mb-2">
-                        <li class="list-inline-item"><a href="#!">About</a></li>
+                        <li class="list-inline-item"><a href="{% url 'index' %}">Inicio</a></li>
                         <li class="list-inline-item">⋅</li>
-                        <li class="list-inline-item"><a href="#!">Contact</a></li>
+                        <li class="list-inline-item"><a href="{% url 'ver_categorias' %}">Solicitar Exámenes</a></li>
                         <li class="list-inline-item">⋅</li>
-                        <li class="list-inline-item"><a href="#!">Terms of Use</a></li>
-                        <li class="list-inline-item">⋅</li>
-                        <li class="list-inline-item"><a href="#!">Privacy Policy</a></li>
+                        <li class="list-inline-item"><a href="{% url 'derivaciones' %}">Solicitar Derivaciones</a></li>
                     </ul>
-                    <p class="text-muted small mb-4 mb-lg-0">&copy; Your Website 2023. All Rights Reserved.</p>
+                    <p class="text-muted small mb-4 mb-lg-0">&copy; Nuuk Medical 2024. Todos los derechos reservados</p>
                 </div>
                 <div class="col-lg-6 h-100 text-center text-lg-end my-auto">
                     <ul class="list-inline mb-0">
+                        <img src="{% static 'assets/img/webpay.png' %}" style="width: 100px; height: auto;">
                         <li class="list-inline-item me-4">
                             <a href="#!"><i class="bi-facebook fs-3"></i></a>
                         </li>

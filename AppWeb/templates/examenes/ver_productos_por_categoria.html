@@ -2,44 +2,151 @@
 {% load static %}
 
 {% block title %}
-    Lista de Examenes
-
-
-    
+    Lista de Exámenes
 {% endblock %}
-
 
 {% block content %}
 
-<div class="container">
+<style>
+    .mt-5 {
+        margin-top: 3rem !important;
+    }
+
+    .mb-5 {
+        margin-bottom: 3rem !important;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-justify {
+        text-align: justify;
+    }
+
+    .text-format-content p {
+        text-align: justify;
+    }
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-title, .card-text {
+        text-align: center;
+        width: 100%;
+    }
+
+    .btn-agregar {
+        margin-top: 10px;
+    }
+
+    .content-column {
+        margin-top: 20px; /* Espacio entre el inicio de los textos y el header */
+        padding: 0 20px; /* Espacio lateral entre los textos y los botones */
+    }
+
+    .text-format-heading {
+        font-size: 1.5rem;
+    }
+
+    .text-format-content {
+        font-size: 1rem;
+        max-width: 500px; /* Ancho máximo para los textos */
+        margin: 0 auto; /* Centra los textos dentro de su contenedor */
+    }
+
+    .text-format p {
+        margin-bottom: 1rem; /* Espacio entre los párrafos */
+    }
+</style>
+
+
+<div class="container mt-5 mb-5"> <!-- Añadido mt-5 y mb-5 para espaciar el contenido del header y el footer -->
     <div class="row">
         <div class="col-md-6">
-            <h1 class="mb-4">Exámenes disponibles</h1>
+            <h1 class="mb-4 text-center">{{ categoria.nombre }}</h1> <!-- Añadido text-center para centrar el título -->
             {% for producto in productos %}
             <div class="card mb-3">
-                <div class="card-body">
+                <div class="card-body text-center"> <!-- Añadido text-center para centrar el contenido de la tarjeta -->
                     <h5 class="card-title">{{ producto.nombre }}</h5>
                     <p class="card-text">Precio: {{ producto.categoria.precio }}</p>
+                    {% if user.is_authenticated %}
                     <form class="agregar-al-carrito-form" data-producto-id="{{ producto.id }}" method="post" action="{% url 'agregar_al_carrito' %}">
                         {% csrf_token %}
                         <input type="hidden" name="elemento_id" value="{{ producto.id }}">
-                        <input type="hidden" name="tipo" value="producto">
-                        <button type="submit" class="btn btn-primary btn-sm agregar-al-carrito-btn" {% if producto.ya_en_carrito %}disabled{% endif %}>
-                            {% if producto.ya_en_carrito %}Producto Agregado{% else %}Agregar al carrito{% endif %}
+                        <input type="hidden" name="tipo" value="diagnostico">
+                        <button type="button" class="btn btn-primary btn-sm agregar-al-carrito-btn" onclick="agregarAlCarrito('{{ producto.id }}', this); this.disabled=true;">
+                            Agregar al carrito
                         </button>
                     </form>
+                    {% else %}
+                    <button type="button" class="btn btn-primary btn-sm agregar-al-carrito-btn" onclick="agregarAlCarrito('{{ producto.id }}')">
+                        Agregar al carrito
+                    </button>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
             <a href="{% url 'resumen_carrito' %}" class="btn btn-info mt-3">Ver Resumen del Carrito</a>
         </div>
-        <div class="col-md-6">
-            <h2>¿Por que solicitar {{categoria.nombre}}?</h2>
-            <p>{{ categoria.descripcion }}</p>
+        <div class="col-md-6 content-column">
+            <div class="text-format">
+                <h2 class="text-format-heading text-center">Información sobre Precios:</h2>
+                <p class="text-format-content" style="text-align: justify;">¡Aprovecha nuestra tarifa única! Todos nuestros exámenes tienen un costo de $2,990 por categoría. Puedes elegir todos los exámenes que necesites dentro de una misma categoría, y el precio se mantendrá en $2,990.</p>
+            </div>
+            <br>
+            <br>
+            <div class="text-format">
+                <h2 class="text-format-heading text-center">¿Por qué solicitar {{ categoria.nombre }}?</h2>
+                <div class="text-format-content" style="text-align: justify;">{{ categoria.descripcion|linebreaks }}</div>
+            </div>
         </div>
     </div>
 </div>
 
-
+<script>
+    function agregarAlCarrito(productoId, button) {
+        // Verificar si el usuario está autenticado
+        {% if user.is_authenticated %}
+            // Si está autenticado, enviar el formulario correspondiente usando AJAX
+            var form = button.closest('form') || document.querySelector('.agregar-al-carrito-form[data-producto-id="' + productoId + '"]');
+            var formData = new FormData(form);
+    
+            // Crear una instancia de XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+    
+            // Configurar la solicitud AJAX
+            xhr.open('POST', form.action);
+    
+            // Definir lo que sucede en la respuesta del servidor
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    // La solicitud fue exitosa, realizar acciones adicionales si es necesario
+                    button.disabled = true;
+                    button.innerText = 'Agregado';
+                    setTimeout(function () {
+                        button.disabled = false;
+                        button.innerText = 'Agregar al carrito';
+                    }, 5000000); // Después de 5 segundos, habilitar el botón nuevamente
+                } else {
+                    // La solicitud falló, mostrar un mensaje de error si es necesario
+                    console.error('Error al agregar el producto al carrito');
+                }
+            };
+    
+            // Enviar la solicitud AJAX con los datos del formulario
+            xhr.send(formData);
+        {% else %}
+            // Si no está autenticado, mostrar un mensaje de alerta
+            alert('Debes iniciar sesión para agregar productos al carrito.');
+            // Redirigirlo a la página de inicio de sesión con el parámetro 'next' para regresar a la página actual después del inicio de sesión
+            window.location.href = "{% url 'login' %}?next={{ request.path }}";
+        {% endif %}
+    }
+</script>
 
 {% endblock %}

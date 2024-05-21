@@ -1,5 +1,3 @@
-
-
 {% extends 'base.html' %}
 {% load static %}
 
@@ -7,35 +5,72 @@
     Lista de Diagnósticos
 {% endblock %}
 
-
 {% block content %}
-
-<div class="container">
+<div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-6">
-            <h1 class="mb-4">Diagnósticos disponibles</h1>
+            <h1 class="mb-4 text-center">{{ derivacion.nombre }}</h1>
             {% for diagnostico in diagnosticos %}
             <div class="card mb-3">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">{{ diagnostico.nombre }}</h5>
                     <p class="card-text">Precio: {{ diagnostico.derivacion.precio }}</p>
+                    {% if user.is_authenticated %}
                     <form class="agregar-al-carrito-form" data-producto-id="{{ diagnostico.id }}" method="post" action="{% url 'agregar_derivaciones' %}">
                         {% csrf_token %}
                         <input type="hidden" name="elemento_id" value="{{ diagnostico.id }}">
                         <input type="hidden" name="tipo" value="diagnostico">
-                        <button type="submit" class="btn btn-primary btn-sm agregar-al-carrito-btn" {% if diagnostico.ya_en_carrito %}disabled{% endif %}>
-                            {% if diagnostico.ya_en_carrito %}Diagnóstico Agregado{% else %}Agregar al carrito{% endif %}
+                        <button type="button" class="btn btn-primary btn-sm btn-agregar" onclick="agregarAlCarrito('{{ diagnostico.id }}', this); this.disabled=true;">
+                            Agregar al carrito
                         </button>
                     </form>
+                    {% else %}
+                    <button type="button" class="btn btn-primary btn-sm btn-agregar" onclick="agregarAlCarrito('{{ diagnostico.id }}', this);">
+                        Agregar al carrito
+                    </button>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
             <a href="{% url 'resumen_carrito' %}" class="btn btn-info mt-3">Ver Resumen del Carrito</a>
         </div>
         <div class="col-md-6">
-            <h2>¿Por qué solicitar {{ derivacion.nombre }}?</h2>
+            <div class="text-format">
+                <h2 class="text-format-heading" style="text-align: center;">Información sobre Precios:</h2>
+                <p class="text-format-content" style="text-align: justify;">¡Aprovecha nuestra tarifa única! Todos nuestros diagnósticos tienen un costo de $1,500 por derivación. Puedes elegir todos los diagnósticos que necesites dentro de una misma derivación, y el precio se mantendrá en $1,500.</p>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    function agregarAlCarrito(productoId, button) {
+        {% if user.is_authenticated %}
+            var form = button.closest('form') || document.querySelector('.agregar-al-carrito-form[data-producto-id="' + productoId + '"]');
+            var formData = new FormData(form);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', form.action);
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    button.disabled = true;
+                    button.innerText = 'Agregado';
+                    setTimeout(function () {
+                        button.disabled = false;
+                        button.innerText = 'Agregar al carrito';
+                    }, 500000); // Después de 5 segundos, habilitar el botón nuevamente
+                } else {
+                    console.error('Error al agregar el producto al carrito');
+                }
+            };
+
+            xhr.send(formData);
+        {% else %}
+            alert('Necesitas estar logeado para agregar productos al carrito.');
+            window.location.href = "{% url 'login' %}?next={{ request.path }}";
+        {% endif %}
+    }
+</script>
 
 {% endblock %}
