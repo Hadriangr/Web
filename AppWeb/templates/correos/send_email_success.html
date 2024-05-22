@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Email Sent Successfully!</h1>
+<p>Thank you for using our email service. Your email has been sent to the following recipients:</p>
+<ul>
+  {% for recipient in recipients %}
+    <li>{{ recipient }}</li>
+  {% empty %}
+    <li>No recipients specified.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

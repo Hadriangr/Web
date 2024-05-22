@@ -10,6 +10,7 @@
     .custom-select {
         width: 100%;
         font-size: 16px;
+        height: 45px; /* Ajusta este valor según tus preferencias */
     }
     
     .card {
@@ -54,8 +55,19 @@
             <div class="card formulario-card">
                 <div class="card-body formulario-card-body ">
                     <form method="post">
-                        <h3 class="formulario-titulo">Crear cuenta</h3>
+                        <h3 class="formulario-titulo">Crear dsjdascuenta</h3>
                         <p class="text-center">Si ya tienes una cuenta puedes <a href="{% url 'login' %}">Iniciar Sesión</a></p>
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <ul>
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
                         {% csrf_token %}
                         <div class="formulario-group">
                             <label for="id_nombre">Nombre</label>
@@ -68,6 +80,13 @@
                         <div class="form-group">
                             <label for="id_email">Email</label>
                             <input type="email" class="form-control" id="id_email" name="email" placeholder="Ingrese su email">
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="form-group">
                             <label for="id_email_confirm">Confirmar Email</label>
@@ -113,6 +132,7 @@
                             <label for="id_password2">Confirmar Contraseña</label>
                             <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Confirme su contraseña">
                         </div>
+                        <br>
                         <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
                     </form>
                 </div>

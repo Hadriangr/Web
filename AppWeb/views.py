@@ -19,8 +19,13 @@ from datetime import datetime
 from reportlab.platypus import SimpleDocTemplate, PageBreak,BaseDocTemplate, PageTemplate,Frame, Paragraph, Spacer, Table
 from reportlab.lib.units import cm
 from io import BytesIO
-from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.conf import settings
+import os
+from django.core.files.storage import default_storage
+from django.template.loader import render_to_string
 
 
 
@@ -64,7 +69,9 @@ def user_login(request):
     return render(request, 'registration/login.html', {'form': form, 'next': next_url})
 
 
-
+def validate_email(value):
+    if not value.endswith('@example.com'):
+        raise ValidationError('Invalid email address')
 
 def user_logout(request):
     logout(request)
@@ -243,6 +250,50 @@ def custom_password_reset_confirm(request):
 
 def custom_password_reset_complete(request):
     return render(request, 'registration/password_reset_complete.html')
+
+
+
+@login_required
+def send_email_view(request):
+    if request.method == 'POST':
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        recipients = [request.user.email]
+
+        send_mail(
+            subject="Reporte de Productos",
+            message="Estimado usuario, se ha generado un reporte de productos.",
+            from_email=settings.EMAIL_HOST_USER,
+            recipients=request.user.email,
+            fail_silently=False,
+        )
+
+        return render(request, 'correos/send_email_success.html')
+
+    return render(request, 'correos/send_email.html')
+    
+
+def send_email_button_view(request):
+    # Redirect to the send_email_view function
+    return redirect('correos/send_email')
+
+
+def send_email(subject, message, recipients, attachments=None):
+    if attachments is None:
+        attachments = []
+
+    msg = EmailMessage(
+        subject,
+        message,
+        settings.EMAIL_HOST_USER,
+        recipients,
+    )
+
+    for attachment in attachments:
+        with open(attachment, 'rb') as f:
+            msg.attach(os.path.basename(attachment), f.read(), 'application/pdf')
+
+    msg.send()
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -453,6 +504,23 @@ def generar_pdf_productos(request):
     # Construir el documento
     doc.build(elements)
 
+        # Guardar el PDF en el servidor
+    pdf_filename = f"productos_{rut}_{fecha_actual}.pdf"
+    pdf_file = ContentFile(buffer.getvalue())
+    pdf_storage = default_storage
+    pdf_storage.save(pdf_filename, pdf_file)
+
+    email_subject = "Reporte de Productos"
+    email_body = render_to_string('correos/email_template.html', {'user': request.user})
+    email_message = EmailMessage(
+        email_subject,
+        email_body,
+        settings.EMAIL_HOST_USER,
+        [request.user.email],
+    )
+    email_message.attach('productos.pdf', buffer.getvalue(), 'application/pdf')
+    email_message.send()
+
     response.write(buffer.getvalue())
     buffer.close()
 
@@ -546,6 +614,17 @@ def generar_pdf_derivaciones(request):
 
     # Construir el documento
     doc.build(elements)
+
+    email_subject = "Reporte de Derivaciones"
+    email_body = render_to_string('email_template.html', {'user': request.user})
+    email_message = EmailMessage(
+        email_subject,
+        email_body,
+        settings.EMAIL_HOST_USER,
+        [request.user.email],
+    )
+    email_message.attach('derivaciones.pdf', buffer.getvalue(), 'application/pdf')
+    email_message.send()
 
     response.write(buffer.getvalue())
     buffer.close()

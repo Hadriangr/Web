@@ -17,7 +17,6 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', custom_password_reset_confirm, name='password_reset_confirm'),
     path('reset/done/', custom_password_reset_complete, name='password_reset_complete'),
     path('agregar_al_carrito/<int:subcategoria_id>/', agregar_al_carrito, name='agregar_al_carrito'),
-    path('registro_test/', views.register, name='registro_test'),
     path('mi-cuenta/', views.mi_cuenta, name='mi_cuenta'),
     path('mi-cuenta/editar', views.editar_perfil, name='editar_perfil'),
     path('historico/', views.ver_compras_usuario, name='historico'),
@@ -34,6 +33,8 @@ urlpatterns = [
     path('carrito/', views.carrito, name='carrito'),
     path('generar-pdf-productos/', views.generar_pdf_productos, name='generar_pdf_productos'),
     path('generar-pdf-derivaciones/', views.generar_pdf_derivaciones, name='generar_pdf_derivaciones'),
+    path('send-email/', views.send_email_view, name='send_email'),
+    path('send-email-button/', views.send_email_button_view, name='send_email_button'),
 ]
 
 
