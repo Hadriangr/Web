@@ -55,7 +55,7 @@
             <div class="card formulario-card">
                 <div class="card-body formulario-card-body ">
                     <form method="post">
-                        <h3 class="formulario-titulo">Crear dsjdascuenta</h3>
+                        <h3 class="formulario-titulo">Crear cuenta</h3>
                         <p class="text-center">Si ya tienes una cuenta puedes <a href="{% url 'login' %}">Iniciar Sesión</a></p>
                         {% if form.errors %}
                             <div class="alert alert-danger">
@@ -132,6 +132,10 @@
                             <label for="id_password2">Confirmar Contraseña</label>
                             <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Confirme su contraseña">
                         </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="terminosCheckbox">
+                            <label class="form-check-label" for="terminosCheckbox">Acepto los <a href="{% url 'terminos_condiciones' %}">términos y condiciones</a></label>
+                        </div>
                         <br>
                         <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
                     </form>
@@ -140,4 +144,13 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById("registroForm").addEventListener("submit", function(event) {
+        if (!document.getElementById("terminosCheckbox").checked) {
+            event.preventDefault();
+            alert("Debes aceptar los términos y condiciones para registrarte.");
+        }
+    });
+</script>
 {% endblock %}

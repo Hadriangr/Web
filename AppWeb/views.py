@@ -135,6 +135,8 @@ def carrito(request):
 
     return render(request, 'examenes/carrito_test.html', {'elementos_en_carrito': elementos_en_carrito})
 
+def registro_done(request):
+    return render(request,'registration/registro_done.html')
 
 def register(request):
     if request.method == 'POST':
@@ -144,7 +146,7 @@ def register(request):
             user.username = user_form.cleaned_data.get('email')  # Usar el correo electrónico como nombre de usuario
             user.save()
             messages.success(request, '¡Registro exitoso! Por favor, inicia sesión con tu nueva cuenta.')  # Mensaje de éxito
-            return redirect('login')  # Redireccionar al usuario a la página de inicio de sesión
+            return redirect('registro-exitoso')  # Redireccionar al usuario a la página de inicio de sesión
     else:
         user_form = CustomUserCreationForm()
     return render(request, 'registration/registro.html', {'user_form': user_form})
@@ -442,14 +444,18 @@ from reportlab.lib.styles import ParagraphStyle
 @login_required(login_url='/login')
 def generar_pdf_productos(request):
     productos_carrito = request.session.get('productos_carrito', None)
-    
+ 
     if not productos_carrito:
-        return HttpResponse("No se encontraron productos en el carrito.")
+            # Deshabilitar el botón de productos si no hay productos en el carrito
+            response = HttpResponse()
+            response['X-Button-Disabled-Productos'] = 'true'
+            return response
 
+        # Si hay productos en el carrito, continuar con la generación del PDF de productos
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
-
     buffer = BytesIO()
+
 
     # Obtener datos del usuario
     nombre = request.user.nombre
@@ -523,6 +529,9 @@ def generar_pdf_productos(request):
 
     response.write(buffer.getvalue())
     buffer.close()
+
+    # Deshabilitar el botón en la plantilla
+    response['X-Button-Disabled'] = 'true'
 
     return response
 
@@ -616,7 +625,7 @@ def generar_pdf_derivaciones(request):
     doc.build(elements)
 
     email_subject = "Reporte de Derivaciones"
-    email_body = render_to_string('email_template.html', {'user': request.user})
+    email_body = render_to_string('correos/email_template.html', {'user': request.user})
     email_message = EmailMessage(
         email_subject,
         email_body,
@@ -751,3 +760,12 @@ def enviar_correo_con_adjuntos(usuario, asunto, cuerpo, pdf_productos, pdf_deriv
     
     # Enviar el correo electrónico
     email.send(fail_silently=False)
+
+
+def nosotros(request):
+    return render(request,'nosotros.html')
+
+
+def terminos_condiciones_view(request):
+    terminos_file_path = os.path.join(settings.MEDIA_ROOT, 'terminos_condiciones.pdf')
+    return render(request, 'terminos_condiciones.html', {'terminos_file_path': terminos_file_path})

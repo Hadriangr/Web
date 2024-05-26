@@ -1,9 +1,13 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %} Bienvenido {% endblock %}
 {% block content %}
-    <h1>Bienvenido {{ new_user.first_name }}!</h1>
-    <p>
-        Su cuenta ha sido creada de manera exitosa.
-        Ahora puede <a href="{% url 'login' %}">Iniciar Sesión</a>.
-    </p>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f3f3f3;">
+    <div style="max-width: 600px; margin: 100px auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <h1 style="color: #333; text-align: center;">¡Bienvenido{{user.nombre}}!</h1>
+        <p style="font-size: 18px; text-align: center; margin-top: 20px;">
+            Su cuenta ha sido creada de manera exitosa.
+            Ahora puede <br> <a href="{% url 'login' %}" style="color: #007bff; text-decoration: none;">Iniciar Sesión</a>.
+        </p>
+    </div>
 {% endblock %}

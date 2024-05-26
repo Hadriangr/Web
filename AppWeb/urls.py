@@ -12,6 +12,7 @@ urlpatterns = [
     path('password-change/', auth_views.PasswordChangeView.as_view(), name ='password_change'),
     path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(), name ='password_change_done'),
     path('registro/', views.register, name='registro'),
+    path('registro-exitoso/',views.registro_done, name='registro-exitoso'),
     path('password_reset/', custom_password_reset, name='password_reset'),
     path('password_reset/done/', custom_password_reset_done, name='password_reset_done'),
     path('reset/<uidb64>/<token>/', custom_password_reset_confirm, name='password_reset_confirm'),
@@ -35,6 +36,9 @@ urlpatterns = [
     path('generar-pdf-derivaciones/', views.generar_pdf_derivaciones, name='generar_pdf_derivaciones'),
     path('send-email/', views.send_email_view, name='send_email'),
     path('send-email-button/', views.send_email_button_view, name='send_email_button'),
+    path('Nosotros', views.nosotros, name='nosotros'),
+    path('terminos-condiciones/', views.terminos_condiciones_view, name='terminos_condiciones'),
+    # Otros patrones de URL
 ]
 
 

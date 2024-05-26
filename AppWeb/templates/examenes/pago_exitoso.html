@@ -15,13 +15,13 @@
                 </div>
                 <div class="card-body">
                     <p class="lead">¡Gracias por tu compra! Tu pago ha sido procesado con éxito.</p>
-                    <p class="lead">una copia será enviada a {{user.email}}</p>
+                    <p class="lead">Presiona el siguiente boton para descargar y una copia será enviada a {{user.email}}</p>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <a href="{% url 'generar_pdf_productos' %}" class="btn btn-outline-primary" target="_blank">Descargar productos PDF</a>
+                            <a id="productos_btn" href="{% url 'generar_pdf_productos' %}" class="btn btn-outline-primary" target="_blank">Obtener productos PDF</a>
                         </li>
                         <li class="list-group-item">
-                            <a href="{% url 'generar_pdf_derivaciones' %}" class="btn btn-outline-primary" target="_blank">Descargar derivaciones PDF</a>
+                            <a id="derivaciones_btn" href="{% url 'generar_pdf_derivaciones' %}" class="btn btn-outline-primary" target="_blank">Obtener derivaciones PDF</a>
                         </li>
                     </ul>
                 </div>
@@ -29,4 +29,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Verificar si el botón de productos debe estar deshabilitado
+    var productosBtn = document.getElementById("productos_btn");
+    var productosBtnDisabled = "{{ request.META.HTTP_X_BUTTON_DISABLED|default_if_none:'' }}";
+    if (productosBtnDisabled === 'true') {
+        productosBtn.disabled = true;
+    }
+
+    // Verificar si el botón de derivaciones debe estar deshabilitado
+    var derivacionesBtn = document.getElementById("derivaciones_btn");
+    var derivacionesBtnDisabled = "{{ request.META.HTTP_X_BUTTON_DISABLED|default_if_none:'' }}";
+    if (derivacionesBtnDisabled === 'true') {
+        derivacionesBtn.disabled = true;
+    }
+</script>
+
 {% endblock %}

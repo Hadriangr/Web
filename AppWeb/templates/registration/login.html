@@ -7,6 +7,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
+                    <img src="{% static 'assets/img/logo.jpeg' %}" alt="Nuuk Medical" style="display: block; margin: 20px auto 10px; height: 150px;">
                     <h1 class="card-title text-center mb-4">Iniciar sesión</h1>
                     <form action="{% url 'login' %}" method="post">
                         {% csrf_token %}
@@ -27,7 +28,7 @@
                         <div class="form-group">
                             <input type="hidden" name="next" value="{{ next }}">
                             <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
-                            <img src="{% static 'assets/img/nuukmedical.jpg' %}" alt="Nuuk Medical" style="display: block; margin: 20px auto 10px; height: 50px;">
+
 
                         </div>
                         <input type="hidden" name="next" value="{{ next }}" />

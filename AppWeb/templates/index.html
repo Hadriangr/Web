@@ -30,9 +30,9 @@
         <nav class="navbar navbar-light bg-light static-top">
             <div class="container">
                 <a class="navbar-brand" href="{% url 'index' %}">
-                    <img src="{% static 'assets/img/nuukmedical.jpg' %}" alt="Nuuk Medical" style="height: 40px;">
+                    <img src="{% static 'assets/img/logoazul.jpeg' %}" alt="Nuuk Medical" style="display: block; margin: 20px auto 10px; height: 100px;">
                 </a>
-                <a class="navbar-brand" href="{% url 'index' %}">Sobre Nosotros</a>
+                <a class="navbar-brand" href="{% url 'nosotros' %}">Sobre Nosotros</a>
                 <a class="navbar-brand" href="{% url 'ver_categorias' %}">Solicitar Exámenes</a>
                 <a class="navbar-brand" href="{% url 'derivaciones' %}">Solicitar Derivaciones</a>
                 {% if request.user.is_authenticated %}
@@ -68,7 +68,7 @@
                     <div class="col-xl-6">
                         <div class="text-center text-white">
                             <h1>Tu salud, nuestra prioridad</h1>
-                            <h2>Obtén tus recetas médicas sin salir de casa por tan solo $2.990</h2>
+                            <h2>Obtén tus órdenes médicas sin salir de casa por tan solo $2.990</h2>
                             <h1 class="mb-5"></h1>
                         </div>
                     </div>
@@ -148,7 +148,7 @@
                         <div class="col-lg-6 order-lg-1 my-auto showcase-text">
                             <h2>Exámenes</h2>
                             <p class="lead mb-0">Paquete de exámenes preventivos para control de salud general, condiciones específicas y evaluación preocupacional.</p>
-                            <a href="{% url 'ver_categorias' %}" class="btn btn-primary mt-3">Solicitar Examenes</a>
+                            <a href="{% url 'ver_categorias' %}" class="btn btn-primary mt-3">Solicitar Exámenes</a>
                         </div>
                     </div>
                     <div class="row g-0">
