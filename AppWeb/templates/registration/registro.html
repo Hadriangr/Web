@@ -2,155 +2,109 @@
 {% load static %}
 
 {% block title %}
-    Lista de Examenes
+    Crear cuenta
 {% endblock %}
 
 {% block content %}
+<!-- Enlace a Bootstrap CSS -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
-    .custom-select {
+    /* Estilos personalizados */
+    .registro-container {
+        width: 500px; /* Aumentar el ancho */
+        margin: auto;
+        padding: 20px;
+        background-color: #f0f8ff; /* Azul claro */
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1); /* Sombra */
+        margin-top: 50px; 
+        margin-bottom: 50px; 
+    }
+    h1 {
+        text-align: center;
+    }
+    p{
+        text-align: center;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        
+    }
+    label {
+        margin-bottom: 5px;
+    }
+    input, select {
+        padding: 8px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 100%; /* Asegurar que los campos llenen el contenedor */
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #4CAF50; /* Verde */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
         width: 100%;
-        font-size: 16px;
-        height: 45px; /* Ajusta este valor según tus preferencias */
+    }
+    .message {
+        margin-top: 20px;
+        text-align: center;
     }
     
-    .card {
-        border-radius: 15px; /* Redondear las esquinas del cuadro */
-        background-color: #f0f8ff; /* Color de fondo azul claro */
-    }
-    
-    .card-body {
-        padding: 20px;
-    }
-
-    .form-container {
-        margin-top: 50px; /* Espacio más amplio entre el formulario y el encabezado */
-        margin-bottom: 50px; /* Espacio entre el formulario y el footer */
-    }
-
-    .text-center {
-        text-align: center; /* Centrar el texto */
-    }
-
-    /* Estilos personalizados para el formulario */
-    .formulario-card {
-        margin-top: 50px; /* Espacio más amplio entre el formulario y el encabezado */
-        margin-bottom: 50px; /* Espacio entre el formulario y el footer */
-    }
-
-    .formulario-card-body {
-        padding: 20px;
-    }
-
-    .formulario-titulo {
-        text-align: center; /* Centrar el título del formulario */
-    }
-
-    .formulario-group {
-        margin-bottom: 20px; /* Espacio entre los elementos del formulario */
-    }
 </style>
-<div class="container mt-5 form-container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card formulario-card">
-                <div class="card-body formulario-card-body ">
-                    <form method="post">
-                        <h3 class="formulario-titulo">Crear cuenta</h3>
-                        <p class="text-center">Si ya tienes una cuenta puedes <a href="{% url 'login' %}">Iniciar Sesión</a></p>
-                        {% if form.errors %}
-                            <div class="alert alert-danger">
-                                <ul>
-                                    {% for field in form %}
-                                        {% for error in field.errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        {% endif %}
-                        {% csrf_token %}
-                        <div class="formulario-group">
-                            <label for="id_nombre">Nombre</label>
-                            <input type="text" class="form-control" id="id_nombre" name="nombre" placeholder="Ingrese su nombre">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_apellido">Apellido</label>
-                            <input type="text" class="form-control" id="id_apellido" name="apellido" placeholder="Ingrese su apellido">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_email">Email</label>
-                            <input type="email" class="form-control" id="id_email" name="email" placeholder="Ingrese su email">
-                            {% if form.email.errors %}
-                                <div class="invalid-feedback">
-                                    {% for error in form.email.errors %}
-                                        <span>{{ error }}</span>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        <div class="form-group">
-                            <label for="id_email_confirm">Confirmar Email</label>
-                            <input type="email" class="form-control" id="id_email_confirm" name="email_confirm" placeholder="Confirme su email">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_region">Región</label>
-                            <input type="text" class="form-control" id="id_region" name="region" placeholder="Ingrese su región">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_comuna">Comuna</label>
-                            <input type="text" class="form-control" id="id_comuna" name="comuna" placeholder="Ingrese su comuna">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_direccion">Dirección</label>
-                            <input type="text" class="form-control" id="id_direccion" name="direccion" placeholder="Ingrese su dirección">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_telefono_contacto">Teléfono de Contacto</label>
-                            <input type="text" class="form-control" id="id_telefono_contacto" name="telefono_contacto" placeholder="Ingrese su teléfono de contacto">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_fecha_nacimiento">Fecha de Nacimiento</label>
-                            <input type="date" class="form-control" id="id_fecha_nacimiento" name="fecha_nacimiento">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_rut">RUT</label>
-                            <input type="text" class="form-control" id="id_rut" name="rut" placeholder="Ingrese su RUT">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_genero">Género</label>
-                            <select class="form-control custom-select" id="id_genero" name="genero">
-                                <option value="M">Masculino</option>
-                                <option value="F">Femenino</option>
-                                <option value="O">Otro</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="id_password1">Contraseña</label>
-                            <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Ingrese su contraseña">
-                        </div>
-                        <div class="form-group">
-                            <label for="id_password2">Confirmar Contraseña</label>
-                            <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Confirme su contraseña">
-                        </div>
-                        <div class="form-group form-check">
-                            <input type="checkbox" class="form-check-input" id="terminosCheckbox">
-                            <label class="form-check-label" for="terminosCheckbox">Acepto los <a href="{% url 'terminos_condiciones' %}">términos y condiciones</a></label>
-                        </div>
-                        <br>
-                        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
-                    </form>
-                </div>
+
+<div class="registro-container">
+    <h1>Crear cuenta</h1>
+    <p>Los campos marcados con <span style="color:red">*</span> son obligatorios.</p>
+    <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                <strong>¡Atención!</strong> {{ form.non_field_errors }}
             </div>
+        {% endif %}
+        {% for field in form %}
+            {% if field.errors %}
+                <div class="alert alert-danger">
+                    {{ field.errors }}
+                </div>
+            {% endif %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }} {% if field.field.required %}<span style="color:red">*</span>{% endif %}:
+                </label>
+                {% if field.name == "fecha_nacimiento" %}
+                    <div class="input-group date" id="fecha_nacimiento">
+                        {{ field }}
+                        <span class="input-group-addon">
+                            <i class="glyphicon glyphicon-calendar"></i>
+                        </span>
+                    </div>
+                {% else %}
+                    {{ field }}
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="terminosCheckbox" name="terminosCheckbox">
+            <label class="form-check-label" for="terminosCheckbox">Acepto los <a href="{% static 'terminos_condiciones.pdf' %}" target="_blank">términos y condiciones</a></label>
+            {% if form.terminosCheckbox.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in form.terminosCheckbox.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
-    </div>
+        <button type="submit">Registrarse</button>
+    </form>
+    <p class="message">¿Ya tienes una cuenta? <a href="{% url 'login' %}">Iniciar sesión</a></p>
 </div>
 
-<script>
-    document.getElementById("registroForm").addEventListener("submit", function(event) {
-        if (!document.getElementById("terminosCheckbox").checked) {
-            event.preventDefault();
-            alert("Debes aceptar los términos y condiciones para registrarte.");
-        }
-    });
-</script>
+
 {% endblock %}

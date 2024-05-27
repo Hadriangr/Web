@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Crear cuenta
+{% endblock %}
+
+{% block content %}
+<style>
+    .custom-select {
+        width: 100%;
+        font-size: 16px;
+        height: 45px;
+    }
+    
+    .card {
+        border-radius: 15px;
+        background-color: #f0f8ff;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+
+    .form-container {
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .formulario-card {
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+
+    .formulario-card-body {
+        padding: 20px;
+    }
+
+    .formulario-titulo {
+        text-align: center;
+    }
+
+    .formulario-group {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="container mt-5 form-container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card formulario-card">
+                <div class="card-body formulario-card-body">
+                    <div id="error-messages"></div>
+                    <form method="post">
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <ul>
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <h3 class="formulario-titulo">Crear cuenta</h3>
+                        <p class="text-center">Si ya tienes una cuenta puedes <a href="{% url 'login' %}">Iniciar Sesión</a></p>
+                        {% if form.errors %}
+                            <div class="alert alert-danger" role="alert">
+                                <ul>
+                                    {% for field in form %}
+                                        {% if field.errors %}
+                                            {% for error in field.errors %}
+                                                <li>{{ field.label }}: {{ error }}</li>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        {% csrf_token %}
+                        <div class="formulario-group">
+                            <label for="id_nombre">Nombre</label>
+                            <input type="text" class="form-control" id="id_nombre" name="nombre" placeholder="Ingrese su nombre" value="{{ form.nombre.value|default_if_none:'' }}">
+                            {% if form.nombre.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.nombre.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_apellido">Apellido</label>
+                            <input type="text" class="form-control" id="id_apellido" name="apellido" placeholder="Ingrese su apellido" value="{{ form.apellido.value|default_if_none:'' }}">
+                            {% if form.apellido.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.apellido.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_email">Email</label>
+                            <input type="email" class="form-control" id="id_email" name="email" placeholder="Ingrese su email" value="{{ form.email.value|default_if_none:'' }}">
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_email_confirm">Confirmar Email</label>
+                            <input type="email" class="form-control" id="id_email_confirm" name="email_confirm" placeholder="Confirme su email" value="{{ form.email_confirm.value|default_if_none:'' }}">
+                            {% if form.email_confirm.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.email_confirm.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_region">Región</label>
+                            <input type="text" class="form-control" id="id_region" name="region" placeholder="Ingrese su región" value="{{ form.region.value|default_if_none:'' }}">
+                            {% if form.region.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.region.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_comuna">Comuna</label>
+                            <input type="text" class="form-control" id="id_comuna" name="comuna" placeholder="Ingrese su comuna" value="{{ form.comuna.value|default_if_none:'' }}">
+                            {% if form.comuna.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.comuna.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_direccion">Dirección</label>
+                            <input type="text" class="form-control" id="id_direccion" name="direccion" placeholder="Ingrese su dirección" value="{{ form.direccion.value|default_if_none:'' }}">
+                            {% if form.direccion.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.direccion.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_telefono_contacto">Teléfono de Contacto</label>
+                            <input type="text" class="form-control" id="id_telefono_contacto" name="telefono_contacto" placeholder="Ingrese su teléfono de contacto" value="{{ form.telefono_contacto.value|default_if_none:'' }}">
+                            {% if form.telefono_contacto.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.telefono_contacto.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_fecha_nacimiento">Fecha de Nacimiento</label>
+                            <input type="date" class="form-control" id="id_fecha_nacimiento" name="fecha_nacimiento" value="{{ form.fecha_nacimiento.value|default_if_none:'' }}">
+                            {% if form.fecha_nacimiento.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.fecha_nacimiento.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_rut">RUT</label>
+                            <input type="text" class="form-control" id="id_rut" name="rut" placeholder="Ingrese su RUT" value="{{ form.rut.value|default_if_none:'' }}">
+                            {% if form.rut.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.rut.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_genero">Género</label>
+                            <select class="form-control custom-select" id="id_genero" name="genero">
+                                <option value="M" {% if form.genero.value == "M" %}selected{% endif %}>Masculino</option>
+                                <option value="F" {% if form.genero.value == "F" %}selected{% endif %}>Femenino</option>
+                                <option value="O" {% if form.genero.value == "O" %}selected{% endif %}>Otro</option>
+                            </select>
+                            {% if form.genero.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.genero.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_password1">Contraseña</label>
+                            <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Ingrese su contraseña">
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password1.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_password2">Confirmar Contraseña</label>
+                            <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Confirme su contraseña">
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.password2.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="terminosCheckbox" name="terminosCheckbox">
+                            <label class="form-check-label" for="terminosCheckbox">Acepto los <a href="{% url 'terminos_condiciones' %}">términos y condiciones</a></label>
+                            {% if form.terminosCheckbox.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.terminosCheckbox.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <br>
+                        <button type="submit" class="btn btn-primary btn-block">Registrarse</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("registroForm").addEventListener("submit", function(event) {
+        if (!document.getElementById("terminosCheckbox").checked) {
+            event.preventDefault();
+            alert("Debes aceptar los términos y condiciones para registrarte.");
+        }
+    });
+
+document.getElementById("registroForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    var formData = new FormData(document.getElementById("registroForm"));
+    var request = new XMLHttpRequest();
+
+    request.open("POST", "{% url 'registro' %}", true);
+    request.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+    request.onload = function() {
+        if (request.status === 200) {
+            // Handle successful registration
+            window.location.href = "{% url 'registro-exitoso' %}";
+        } else {
+            // Handle error messages
+            var response = JSON.parse(request.responseText);
+            var errorMessages = document.getElementById("error-messages");
+            errorMessages.innerHTML = "";
+            if (response.error) {
+                errorMessages.innerHTML = "<p>" + response.error + "</p>";
+            }
+            if (response.form) {
+                for (var field in response.form) {
+                    if (response.form.hasOwnProperty(field)) {
+                        var errorList = document.getElementById(field + "-errors");
+                        errorList.innerHTML = "";
+                        if (response.form[field].length > 0) {
+                            for (var i = 0; i < response.form[field].length; i++) {
+                                errorList.innerHTML += "<li>" + response.form[field][i] + "</li>";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+    request.send(formData);
+});
+</script>
+{% endblock %}

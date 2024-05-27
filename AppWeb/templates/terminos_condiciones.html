@@ -2,9 +2,10 @@
 {% load static %}
 
 {% block title %}
-    Agregar al Carrito
+    Términos y Condiciones
 {% endblock %}
 {% block content %}
-    <embed src="{{ terminos_file_path }}" width="100%" height="800px">
-
-        {% endblock %}
+    <object data="{% static 'assets/terminos_condiciones.pdf' %}" type="application/pdf" width="100%" height="800px">
+        <p>Si no puedes ver el archivo, puedes <a href="{% static 'assets/terminos_condiciones.pdf' %}">descargarlo aquí</a>.</p>
+    </object>
+{% endblock %}

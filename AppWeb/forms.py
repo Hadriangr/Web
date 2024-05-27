@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
-from django.contrib.auth import authenticate
+from django.forms.widgets import DateInput
 from django.forms.widgets import SelectDateWidget
 from django.core.exceptions import ValidationError
 
@@ -31,6 +31,11 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ('nombre', 'apellido', 'email', 'email_confirm', 'region', 'comuna', 'direccion', 'telefono_contacto', 'fecha_nacimiento', 'rut', 'genero', 'password1', 'password2')
+
+    fecha_nacimiento = forms.DateField(widget=DateInput(attrs={'type': 'date'}))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label_suffix = ''  # Cambia el sufijo a una cadena vacía
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

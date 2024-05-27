@@ -16,7 +16,7 @@ from django.core.mail import EmailMessage,send_mail
 from django.utils import timezone
 from reportlab.lib.pagesizes import A5
 from datetime import datetime
-from reportlab.platypus import SimpleDocTemplate, PageBreak,BaseDocTemplate, PageTemplate,Frame, Paragraph, Spacer, Table
+from reportlab.platypus import SimpleDocTemplate, PageBreak,Frame, PageTemplate,Frame, Paragraph, Spacer
 from reportlab.lib.units import cm
 from io import BytesIO
 from reportlab.lib.styles import getSampleStyleSheet
@@ -24,8 +24,10 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.conf import settings
 import os
+from reportlab.lib import colors
 from django.core.files.storage import default_storage
 from django.template.loader import render_to_string
+from django.contrib.staticfiles import finders
 
 
 
@@ -138,19 +140,30 @@ def carrito(request):
 def registro_done(request):
     return render(request,'registration/registro_done.html')
 
-def register(request):
-    if request.method == 'POST':
-        user_form = CustomUserCreationForm(request.POST)
-        if user_form.is_valid():
-            user = user_form.save(commit=False)
-            user.username = user_form.cleaned_data.get('email')  # Usar el correo electrónico como nombre de usuario
-            user.save()
-            messages.success(request, '¡Registro exitoso! Por favor, inicia sesión con tu nueva cuenta.')  # Mensaje de éxito
-            return redirect('registro-exitoso')  # Redireccionar al usuario a la página de inicio de sesión
-    else:
-        user_form = CustomUserCreationForm()
-    return render(request, 'registration/registro.html', {'user_form': user_form})
+# def register(request):
+#     if request.method == 'POST':
+#         user_form = CustomUserCreationForm(request.POST)
+#         if user_form.is_valid():
+#             user = user_form.save(commit=False)
+#             user.username = user_form.cleaned_data.get('email')  # Usar el correo electrónico como nombre de usuario
+#             user.save()
+#             messages.success(request, '¡Registro exitoso! Por favor, inicia sesión con tu nueva cuenta.')  # Mensaje de éxito
+#             return redirect('registro-exitoso')  # Redireccionar al usuario a la página de inicio de sesión
+#     else:
+#         user_form = CustomUserCreationForm()
+#     return render(request, 'registration/registro.html', {'user_form': user_form})
 
+
+def registro_usuario(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # Aquí podrías redirigir al usuario a una página de éxito o hacer cualquier otra acción deseada
+            return redirect('registro-exitoso')  # Reemplaza 'pagina_de_exito' con el nombre de la URL de tu página de éxito
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'registration/registro.html', {'form': form})
 
 def calcular_precio_derivaciones(items_carrito, derivaciones):
     derivaciones_procesadas = set()
@@ -441,21 +454,47 @@ def eliminar_derivacion(request, item_id):
 from reportlab.lib.styles import ParagraphStyle
 
 
+
+def add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual):
+    width, height = A5
+
+    # Header
+    logo_path = finders.find('assets/img/logo.jpeg')
+    if logo_path:
+        canvas.drawImage(logo_path, 40, height - 4 * cm, width=3 * cm, height=3 * cm)  # Ajusta el tamaño y la posición de la imagen
+    else:
+        canvas.setFont('Helvetica-Bold', 12)
+        canvas.drawString(40, height - cm, "Nuuk Medical")
+
+    # Datos del usuario
+    canvas.setFont('Helvetica', 10)
+    text = [
+        f"Sr.(a) {nombre} {apellido}",
+        f"Edad: {edad} años",
+        f"Domicilio: {direccion}",
+        f"Ciudad: {comuna}",
+        f"RUT: {rut}"
+    ]
+    y = height - 4 * cm  # Ajusta la posición inicial del texto del usuario
+    for line in text:
+        canvas.drawString(40, y, line)
+        y -= 12  # Ajustar el espaciado entre líneas según sea necesario
+    # Footer - Page Number and Date
+    page_num = canvas.getPageNumber()
+    canvas.drawRightString(width - 40, cm, f"Página {page_num}")
+    canvas.drawString(40, cm, f"Fecha: {fecha_actual}")
+
 @login_required(login_url='/login')
 def generar_pdf_productos(request):
     productos_carrito = request.session.get('productos_carrito', None)
- 
+    
     if not productos_carrito:
-            # Deshabilitar el botón de productos si no hay productos en el carrito
-            response = HttpResponse()
-            response['X-Button-Disabled-Productos'] = 'true'
-            return response
+        return HttpResponse("No se encontraron productos en el carrito.")
 
-        # Si hay productos en el carrito, continuar con la generación del PDF de productos
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
-    buffer = BytesIO()
 
+    buffer = BytesIO()
 
     # Obtener datos del usuario
     nombre = request.user.nombre
@@ -470,7 +509,7 @@ def generar_pdf_productos(request):
     doc = SimpleDocTemplate(buffer, pagesize=A5)
 
     # Crear un marco para las páginas
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 2 * cm, id='normal')
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 4 * cm, id='normal')
 
     # Crear el PageTemplate con encabezado y pie de página
     template = PageTemplate(id='test', frames=frame, onPage=lambda canvas, doc: add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual))
@@ -495,11 +534,12 @@ def generar_pdf_productos(request):
             productos_por_categoria[categoria] = []
         productos_por_categoria[categoria].append(producto['item__nombre'])
 
-
     elements.append(Spacer(1, 7))
+    elements.append(Paragraph("<b>Orden de Examenes</b>", bold_category_style)) 
 
+    # Iterar sobre las categorías y productos
     for categoria, productos in productos_por_categoria.items():
-        elements.append(Paragraph(f"<b>{categoria}</b>", bold_category_style))  # Categoría en negrita
+        # Agregar los productos de esta categoría
         for producto in productos:
             elements.append(Paragraph(producto, normal_style))
             # Verificar si hay espacio suficiente para más productos en esta página
@@ -510,7 +550,7 @@ def generar_pdf_productos(request):
     # Construir el documento
     doc.build(elements)
 
-        # Guardar el PDF en el servidor
+    # Guardar el PDF en el servidor
     pdf_filename = f"productos_{rut}_{fecha_actual}.pdf"
     pdf_file = ContentFile(buffer.getvalue())
     pdf_storage = default_storage
@@ -530,37 +570,9 @@ def generar_pdf_productos(request):
     response.write(buffer.getvalue())
     buffer.close()
 
-    # Deshabilitar el botón en la plantilla
-    response['X-Button-Disabled'] = 'true'
+
 
     return response
-
-def add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual):
-    width, height = A5
-
-    # Header
-    canvas.setFont('Helvetica-Bold', 12)
-    canvas.drawString(40, height - cm, "Nuuk Medical")
-
-    # Datos del usuario
-    canvas.setFont('Helvetica', 10)
-    text = [
-        f"Sr.(a) {nombre} {apellido}",
-        f"Edad: {edad} años",
-        f"Domicilio: {direccion}",
-        f"Ciudad: {comuna}",
-        f"RUT: {rut}"
-    ]
-    y = height - 2 * cm
-    for line in text:
-        canvas.drawString(40, y, line)
-        y -= 12  # Adjust line spacing as needed
-
-    # Footer - Page Number and Date
-    page_num = canvas.getPageNumber()
-    canvas.drawRightString(width - 40, cm, f"Página {page_num}")
-    canvas.drawString(40, cm, f"Fecha: {fecha_actual}")
-
 
 @login_required(login_url='/login')
 def generar_pdf_derivaciones(request):
@@ -587,7 +599,7 @@ def generar_pdf_derivaciones(request):
     doc = SimpleDocTemplate(buffer, pagesize=A5)
 
     # Crear un marco para las páginas
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 2 * cm, id='normal')
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 4 * cm, id='normal')
 
     # Crear el PageTemplate
     template = PageTemplate(id='test', frames=frame, onPage=lambda canvas, doc: add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual))
@@ -604,7 +616,7 @@ def generar_pdf_derivaciones(request):
     bold_derivation_style.fontName = 'Helvetica-Bold'  # Cambia la fuente a negrita
 
     # Derivaciones del carrito
-    elements.append(Paragraph("Se solicita evaluación por especialidad:", normal_style))
+
     elements.append(Spacer(1, 7))
 
     # Organizar las derivaciones por nombre de derivación
@@ -620,7 +632,7 @@ def generar_pdf_derivaciones(request):
         for item in items:
             elements.append(Paragraph(item, normal_style))
             elements.append(Spacer(1, 7))
-
+    elements.append(Paragraph("Se solicita evaluación por especialidad:", normal_style))
     # Construir el documento
     doc.build(elements)
 
@@ -640,31 +652,7 @@ def generar_pdf_derivaciones(request):
 
     return response
 
-def add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual):
-    width, height = A5
 
-    # Header
-    canvas.setFont('Helvetica-Bold', 12)
-    canvas.drawString(40, height - cm, "Nuuk Medical")
-
-    # Datos del usuario
-    canvas.setFont('Helvetica', 10)
-    text = [
-        f"Sr.(a) {nombre} {apellido}",
-        f"Edad: {edad} años",
-        f"Domicilio: {direccion}",
-        f"Ciudad: {comuna}",
-        f"RUT: {rut}"
-    ]
-    y = height - 2 * cm
-    for line in text:
-        canvas.drawString(40, y, line)
-        y -= 12  # Adjust line spacing as needed
-
-    # Footer - Page Number and Date
-    page_num = canvas.getPageNumber()
-    canvas.drawRightString(width - 40, cm, f"Página {page_num}")
-    canvas.drawString(40, cm, f"Fecha: {fecha_actual}")
 #--------------------------------------------------------------------------------------------------------------------------------------
 
 def send_email(subject, message, from_email, recipient_list, attachment_file):
