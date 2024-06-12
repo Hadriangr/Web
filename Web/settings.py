@@ -147,5 +147,5 @@ EMAIL_HOST_PASSWORD = 'getecom2024'  # Usar la contraseña de aplicación genera
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DEBUG = False
-ALLOWED_HOSTS = ['Getecom.pythonanywhere.com']
+DEBUG = True
+ALLOWED_HOSTS = ['Getecom.pythonanywhere.com', 'localhost', '127.0.0.1']

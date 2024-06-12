@@ -44,7 +44,7 @@ class CustomUserManager(BaseUserManager):
 
         if not email:
             raise ValueError('The Email field must be set')
-        
+
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
@@ -68,7 +68,7 @@ class CustomUser(AbstractUser):
         ('F', 'Femenino'),
         ('O', 'Otro'),
     ))
-    
+
 
     objects = CustomUserManager()
 
@@ -103,7 +103,7 @@ class CustomUser(AbstractUser):
         edad_actual = timezone.now().date().year - self.fecha_nacimiento.year
         if edad_actual < edad_minima:
             raise ValidationError({'fecha_nacimiento': 'Debes ser mayor de 18 años para registrarte.'})
-        
+
 
 class Derivacion(models.Model):
     nombre = models.CharField(max_length=100)
@@ -115,7 +115,7 @@ class Derivacion(models.Model):
         return self.nombre
 
 
-   
+
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
@@ -137,12 +137,44 @@ class Item(models.Model):
         return self.nombre
 
 
+from django.db.models import Max
 
-class CompraHistorica(models.Model):
+class Compra(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Item, on_delete=models.CASCADE)
     fecha_compra = models.DateTimeField(auto_now_add=True)
-    costo = models.DecimalField(max_digits=10, decimal_places=0)
+    costo_total = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+    numero = models.PositiveIntegerField(unique=True, editable=False, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.numero:
+            max_num = Compra.objects.aggregate(Max('numero'))['numero__max']
+            self.numero = (max_num or 0) + 1
+        super().save(*args, **kwargs)
+
+    def productos_comprados(self):
+        return ', '.join([item.producto.nombre for item in self.items.all()])
+
+    def __str__(self):
+        usuario_nombre = self.usuario.nombre if self.usuario else "Usuario Desconocido"
+        usuario_rut = self.usuario.rut if self.usuario else "N/A"
+        productos = self.productos_comprados()
+        return (f"{self.numero} - {self.fecha_compra.strftime('%Y-%m-%d %H:%M:%S')} - "
+                f"{usuario_nombre} ({usuario_rut}) - Productos: {productos}")
+
+class CompraItem(models.Model):
+    compra = models.ForeignKey(Compra, related_name='items', on_delete=models.CASCADE)
+    producto = models.ForeignKey(Item, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+    costo = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+
+    def __str__(self):
+        producto_nombre = self.producto.nombre if self.producto else "Producto Desconocido"
+        producto_categoria = self.producto.categoria.nombre if self.producto and self.producto.categoria else "Categoría Desconocida"
+
+        return f"{producto_categoria} - {producto_nombre} x{self.cantidad}"
+
+
+
 
 # Modelo para el carrito de compras
 class Carrito(models.Model):
@@ -152,7 +184,7 @@ class Carrito(models.Model):
 
     def limpiar_carrito(self):
         self.itemcarrito_set.all().delete()
-    
+
     def __str__(self):
         return f"Carrito de {self.usuario.username}"
 

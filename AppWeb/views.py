@@ -2,21 +2,18 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .forms import CustomUserCreationForm
 from django.contrib.auth import authenticate, login,logout
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import CustomUser,Categoria,Derivacion,Item,Carrito,ItemCarrito,CompraHistorica
+from .models import CustomUser,Categoria,Derivacion,Item,Carrito,ItemCarrito,Compra,CompraItem
 from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import CreateView
-from django.contrib.auth.forms import PasswordResetForm,AuthenticationForm
-from django.core.mail import send_mail
 from django.contrib import messages
 from django import forms
 from django.contrib.auth.decorators import login_required
 from reportlab.pdfgen import canvas
 from django.utils.html import strip_tags
-from django.core.mail import EmailMessage,send_mail
 from django.utils import timezone
 from reportlab.lib.pagesizes import A5
 from datetime import datetime
-from reportlab.platypus import SimpleDocTemplate, PageBreak,Frame, PageTemplate,Frame, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, PageBreak, PageTemplate,Frame, Paragraph, Spacer
 from reportlab.lib.units import cm
 from io import BytesIO
 from reportlab.lib.styles import getSampleStyleSheet
@@ -81,47 +78,16 @@ def user_logout(request):
 
 #Cambio de clave y envío de correo
 
-from django.core.mail import send_mail
 
-def custom_password_reset(request):
-    if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            # Enviar correo electrónico de restablecimiento de contraseña
-            send_mail(
-                'Solicitud de restablecimiento de contraseña',
-                'Por favor sigue este enlace para restablecer tu contraseña.',
-                'your_email@gmail.com',  # Reemplaza con tu dirección de correo electrónico
-                [email],
-                fail_silently=False,
-            )
-            messages.success(request, 'Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.')
-            return redirect('password_reset_done')
-    else:
-        form = PasswordResetForm()
-    return render(request, 'registration/password_reset_form.html', {'form': form})
-
-
-def custom_password_reset_done(request):
-    return render(request, 'registration/password_reset_done.html')
-
-
-def custom_password_reset_confirm(request):
-    return render(request, 'registration/password_reset_confirm.html')
-
-
-def custom_password_reset_complete(request):
-    return render(request, 'registration/password_reset_complete.html')
 
 
 class CarritoForm(forms.Form):
     productos = forms.ModelMultipleChoiceField(queryset=Item.objects.all(), widget=forms.CheckboxSelectMultiple)
-    
+
     PRECIO_FIJO_PRODUCTO = 2990
 
     def precio_total(self):
-        
+
         cantidad_productos = len(self.cleaned_data['productos'])
         return self.PRECIO_FIJO_PRODUCTO * cantidad_productos
 
@@ -169,19 +135,19 @@ def calcular_precio_derivaciones(items_carrito, derivaciones):
     derivaciones_procesadas = set()
     precio_total_derivaciones = 0
     items_por_derivacion = {}
-    
+
     for derivacion in derivaciones:
         if derivacion in derivaciones_procesadas:
             continue
-        
+
         items_derivacion = items_carrito.filter(derivacion=derivacion)
         items_por_derivacion[derivacion] = items_derivacion
-        
+
         precio_total_derivacion = derivacion.precio
         precio_total_derivaciones += precio_total_derivacion
-        
+
         derivaciones_procesadas.add(derivacion)
-    
+
     return precio_total_derivaciones, items_por_derivacion
 
 
@@ -189,32 +155,32 @@ def calcular_precio_categorias(items_carrito, categorias):
     categorias_procesadas = set()
     precio_total_categorias = 0
     items_por_categoria = {}
-    
+
     for categoria in categorias:
         if categoria in categorias_procesadas:
             continue
-        
+
         items_categoria = items_carrito.filter(categoria=categoria)
         items_por_categoria[categoria] = items_categoria
-        
+
         precio_total_categoria = categoria.precio
         precio_total_categorias += precio_total_categoria
-        
+
         categorias_procesadas.add(categoria)
-    
+
     return precio_total_categorias, items_por_categoria
 
 
 def calcular_precio_total_e_items_carrito(usuario):
-    items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=usuario) 
+    items_carrito = Item.objects.filter(itemcarrito__carrito__usuario=usuario)
     categorias = Categoria.objects.filter(item__in=items_carrito).distinct()
     derivaciones = Derivacion.objects.filter(item__in=items_carrito).distinct()
-    
+
     precio_total_categorias, items_por_categoria = calcular_precio_categorias(items_carrito, categorias)
     precio_total_derivaciones, items_por_derivacion = calcular_precio_derivaciones(items_carrito, derivaciones)
-    
+
     precio_total = precio_total_categorias + precio_total_derivaciones
-    
+
     return {
         'items_por_categoria': items_por_categoria,
         'items_por_derivacion': items_por_derivacion,
@@ -233,89 +199,13 @@ def resumen_carrito(request):
 #Cambio de clave y envío de correo
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-from django.core.mail import send_mail
-
-def custom_password_reset(request):
-    if request.method == 'POST':
-        form = PasswordResetForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            # Enviar correo electrónico de restablecimiento de contraseña
-            send_mail(
-                'Solicitud de restablecimiento de contraseña',
-                'Por favor sigue este enlace para restablecer tu contraseña.',
-                'your_email@gmail.com',  # Reemplaza con tu dirección de correo electrónico
-                [email],
-                fail_silently=False,
-            )
-            messages.success(request, 'Se ha enviado un correo electrónico con instrucciones para restablecer tu contraseña.')
-            return redirect('password_reset_done')
-    else:
-        form = PasswordResetForm()
-    return render(request, 'registration/password_reset_form.html', {'form': form})
-
-
-def custom_password_reset_done(request):
-    return render(request, 'registration/password_reset_done.html')
-
-
-def custom_password_reset_confirm(request):
-    return render(request, 'registration/password_reset_confirm.html')
-
-
-def custom_password_reset_complete(request):
-    return render(request, 'registration/password_reset_complete.html')
-
-
-
-@login_required
-def send_email_view(request):
-    if request.method == 'POST':
-        subject = request.POST.get('subject')
-        message = request.POST.get('message')
-        recipients = [request.user.email]
-
-        send_mail(
-            subject="Reporte de Productos",
-            message="Estimado usuario, se ha generado un reporte de productos.",
-            from_email=settings.EMAIL_HOST_USER,
-            recipients=request.user.email,
-            fail_silently=False,
-        )
-
-        return render(request, 'correos/send_email_success.html')
-
-    return render(request, 'correos/send_email.html')
-    
-
-def send_email_button_view(request):
-    # Redirect to the send_email_view function
-    return redirect('correos/send_email')
-
-
-def send_email(subject, message, recipients, attachments=None):
-    if attachments is None:
-        attachments = []
-
-    msg = EmailMessage(
-        subject,
-        message,
-        settings.EMAIL_HOST_USER,
-        recipients,
-    )
-
-    for attachment in attachments:
-        with open(attachment, 'rb') as f:
-            msg.attach(os.path.basename(attachment), f.read(), 'application/pdf')
-
-    msg.send()
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 
-# Cuenta y editarla 
+# Cuenta y editarla
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 @login_required(login_url='/login')
@@ -343,7 +233,7 @@ def editar_perfil(request):
 def ver_compras_usuario(request):
     # Obtener todas las compras históricas del usuario actual
     compras_usuario = CompraHistorica.objects.filter(usuario=request.user)
-    
+
     return render(request, 'cuenta/historico.html', {'compras_usuario': compras_usuario})
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -356,10 +246,10 @@ def agregar_al_carrito(request):
     if request.method == 'POST':
         elemento_id = request.POST.get('elemento_id')
         tipo = request.POST.get('tipo')
-        
+
         # Obtener el elemento (Producto o Diagnostico) según el tipo y el ID
         elemento = get_object_or_404(Item, id=elemento_id)
-        
+
         # Verificar si el usuario está autenticado
         if request.user.is_authenticated:
             # Obtener el carrito del usuario o crear uno nuevo si no existe
@@ -395,10 +285,10 @@ def agregar_al_carrito_derivaciones(request):
     if request.method == 'POST':
         elemento_id = request.POST.get('elemento_id')
         tipo = request.POST.get('tipo')
-        
+
         # Obtener el elemento (Producto o Diagnostico) según el tipo y el ID
         elemento = get_object_or_404(Item, id=elemento_id)
-        
+
         # Obtener el carrito del usuario o crear uno nuevo si no existe
         if request.user.is_authenticated:
             carrito_usuario, _ = Carrito.objects.get_or_create(usuario=request.user)
@@ -449,11 +339,13 @@ def eliminar_derivacion(request, item_id):
 
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
-#Generación de PDFS 
+#Generación de PDFS
 
 from reportlab.lib.styles import ParagraphStyle
+from django.db import transaction
+import logging
 
-
+logger = logging.getLogger(__name__)
 
 def add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual):
     width, height = A5
@@ -461,7 +353,7 @@ def add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, eda
     # Header
     logo_path = finders.find('assets/img/logo.jpeg')
     if logo_path:
-        canvas.drawImage(logo_path, 40, height - 4 * cm, width=3 * cm, height=3 * cm)  # Ajusta el tamaño y la posición de la imagen
+        canvas.drawImage(logo_path, 40, height - 3 * cm, width=3 * cm, height=3 * cm)
     else:
         canvas.setFont('Helvetica-Bold', 12)
         canvas.drawString(40, height - cm, "Nuuk Medical")
@@ -475,201 +367,181 @@ def add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, eda
         f"Ciudad: {comuna}",
         f"RUT: {rut}"
     ]
-    y = height - 4 * cm  # Ajusta la posición inicial del texto del usuario
+    y = height - 4 * cm  # Ajustar esta posición inicial para crear más espacio entre el logo y el texto del usuario
     for line in text:
         canvas.drawString(40, y, line)
-        y -= 12  # Ajustar el espaciado entre líneas según sea necesario
-    # Footer - Page Number and Date
+        y -= 12
+
+    #y_for_sale_number = height - 4 * cm
+    #canvas.drawRightString(width - 40, y_for_sale_number, f"Número: {numero_venta}")
+
+    # Añadir imagen de la firma y ajustar posición
+    firma_path = finders.find('assets/img/firma.jpeg')
+    if firma_path:
+        y_firma = 2 * cm + 18  # Ajustar esta posición para que esté 2 cm por encima del número de página y más cerca del texto
+        canvas.drawImage(firma_path, 40, y_firma, width=5 * cm, height=2 * cm)  # Ajustar tamaño si es necesario
+        y_texto_firma = y_firma - 12  # Ajustar la posición del texto más cerca de la firma
+    else:
+        y_texto_firma = y  # Si no hay firma, usar la posición actual
+
+    # Texto plano debajo de la firma
+    canvas.setFont('Helvetica', 10)
+    texto_firma_1 = "Dra. Marcia Guajardo Rivera"
+    texto_firma_2 = "Rut. 15.140.627-0"
+    canvas.drawString(40, y_texto_firma, texto_firma_1)
+    canvas.drawString(40, y_texto_firma - 12, texto_firma_2)  # Mover el segundo texto una línea abajo
+
+    # Footer - Número de página y fecha
     page_num = canvas.getPageNumber()
     canvas.drawRightString(width - 40, cm, f"Página {page_num}")
     canvas.drawString(40, cm, f"Fecha: {fecha_actual}")
 
 @login_required(login_url='/login')
+@transaction.atomic
 def generar_pdf_productos(request):
-    productos_carrito = request.session.get('productos_carrito', None)
-    
-    if not productos_carrito:
-        return HttpResponse("No se encontraron productos en el carrito.")
+    try:
+        logger.info("Iniciando la generación del PDF de productos.")
+        productos_carrito = request.session.get('productos_carrito', None)
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
+        if not productos_carrito:
+            logger.warning("No se encontraron productos en el carrito.")
+            return render(request, 'vacio.html')
 
-    buffer = BytesIO()
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="productos.pdf"'
 
-    # Obtener datos del usuario
-    nombre = request.user.nombre
-    apellido = request.user.apellido
-    rut = request.user.rut
-    direccion = request.user.direccion
-    comuna = request.user.comuna
-    fecha_nacimiento = request.user.fecha_nacimiento
-    edad = datetime.now().year - fecha_nacimiento.year
-    fecha_actual = datetime.now().strftime("%d/%m/%Y")
+        buffer = BytesIO()
 
-    doc = SimpleDocTemplate(buffer, pagesize=A5)
+        # Obtener datos del usuario
+        user = request.user
+        nombre = user.nombre
+        apellido = user.apellido
+        rut = user.rut
+        direccion = user.direccion
+        comuna = user.comuna
+        fecha_nacimiento = user.fecha_nacimiento
+        edad = datetime.now().year - fecha_nacimiento.year
+        fecha_actual = datetime.now().strftime("%d/%m/%Y")
 
-    # Crear un marco para las páginas
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 4 * cm, id='normal')
+        doc = SimpleDocTemplate(buffer, pagesize=A5)
 
-    # Crear el PageTemplate con encabezado y pie de página
-    template = PageTemplate(id='test', frames=frame, onPage=lambda canvas, doc: add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual))
-    doc.addPageTemplates([template])
+        # Crear un marco para las páginas dejando espacio para el header (5 cm) y footer (5 cm)
+        frame = Frame(doc.leftMargin, doc.bottomMargin + 5 * cm, doc.width, doc.height - 10 * cm, id='normal')
 
-    elements = []
+        # Crear el PageTemplate con encabezado y pie de página
+        template = PageTemplate(id='test', frames=frame, onPage=lambda canvas, doc: add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual))
+        doc.addPageTemplates([template])
 
-    # Estilos
-    styles = getSampleStyleSheet()
-    header_style = styles['Heading1']
-    normal_style = styles['BodyText']
-    
-    # Nuevo estilo para la categoría en negrita
-    bold_category_style = ParagraphStyle(name='BoldCategory', parent=normal_style)
-    bold_category_style.fontName = 'Helvetica-Bold'  # Cambia la fuente a negrita
+        elements = []
 
-    # Organizar los productos por categoría
-    productos_por_categoria = {}
-    for producto in productos_carrito:
-        categoria = producto['item__categoria__nombre']
-        if categoria not in productos_por_categoria:
-            productos_por_categoria[categoria] = []
-        productos_por_categoria[categoria].append(producto['item__nombre'])
+        # Estilos
+        styles = getSampleStyleSheet()
+        normal_style = styles['BodyText']
+        bold_category_style = ParagraphStyle(name='BoldCategory', parent=normal_style, fontName='Helvetica-Bold')
 
-    elements.append(Spacer(1, 7))
-    elements.append(Paragraph("<b>Orden de Examenes</b>", bold_category_style)) 
+        # Productos del carrito
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph("<b>Orden de Examenes</b>", bold_category_style))
 
-    # Iterar sobre las categorías y productos
-    for categoria, productos in productos_por_categoria.items():
-        # Agregar los productos de esta categoría
-        for producto in productos:
-            elements.append(Paragraph(producto, normal_style))
-            # Verificar si hay espacio suficiente para más productos en esta página
-            if buffer.tell() > A5[1] * 0.7:  # 70% del alto de la página A5
-                elements.append(PageBreak())  # Agregar un salto de página
+        for producto in productos_carrito:
+            elements.append(Paragraph(producto['producto__nombre'], normal_style))
+            if len(elements) > 30:  # Asegura que haya suficiente espacio en cada página
+                elements.append(PageBreak())
                 break
 
-    # Construir el documento
-    doc.build(elements)
+        logger.info("Construyendo el documento PDF de productos.")
+        # Construir el documento
+        doc.build(elements)
 
-    # Guardar el PDF en el servidor
-    pdf_filename = f"productos_{rut}_{fecha_actual}.pdf"
-    pdf_file = ContentFile(buffer.getvalue())
-    pdf_storage = default_storage
-    pdf_storage.save(pdf_filename, pdf_file)
+        response.write(buffer.getvalue())
+        buffer.close()
 
-    email_subject = "Reporte de Productos"
-    email_body = render_to_string('correos/email_template.html', {'user': request.user})
-    email_message = EmailMessage(
-        email_subject,
-        email_body,
-        settings.EMAIL_HOST_USER,
-        [request.user.email],
-    )
-    email_message.attach('productos.pdf', buffer.getvalue(), 'application/pdf')
-    email_message.send()
+        # Clear session data to avoid reuse of old data
+        del request.session['productos_carrito']
 
-    response.write(buffer.getvalue())
-    buffer.close()
+        logger.info("PDF de productos generado exitosamente.")
+        return response
+    except Exception as e:
+        logger.error("Error generando PDF de productos: %s", e)
+        return render(request, 'vacio.html')
 
-
-
-    return response
 
 @login_required(login_url='/login')
 def generar_pdf_derivaciones(request):
-    derivaciones_carrito = request.session.get('derivaciones_carrito', None)
-    
-    if not derivaciones_carrito:
-        return HttpResponse("No se encontraron derivaciones en el carrito.")
+    try:
+        logger.info("Iniciando la generación del PDF de derivaciones.")
+        derivaciones_carrito = request.session.get('derivaciones_carrito', None)
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="derivaciones.pdf"'
+        if not derivaciones_carrito:
+            logger.warning("No se encontraron derivaciones en el carrito.")
+            return render(request, 'vacio.html')
 
-    buffer = BytesIO()
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="derivaciones.pdf"'
 
-    # Obtener datos del usuario
-    nombre = request.user.nombre
-    apellido = request.user.apellido
-    rut = request.user.rut
-    direccion = request.user.direccion
-    comuna = request.user.comuna
-    fecha_nacimiento = request.user.fecha_nacimiento
-    edad = datetime.now().year - fecha_nacimiento.year
-    fecha_actual = datetime.now().strftime("%d/%m/%Y")
+        buffer = BytesIO()
 
-    doc = SimpleDocTemplate(buffer, pagesize=A5)
+        # Obtener datos del usuario
+        user = request.user
+        nombre = user.nombre
+        apellido = user.apellido
+        rut = user.rut
+        direccion = user.direccion
+        comuna = user.comuna
+        fecha_nacimiento = user.fecha_nacimiento
+        edad = datetime.now().year - fecha_nacimiento.year
+        fecha_actual = datetime.now().strftime("%d/%m/%Y")
 
-    # Crear un marco para las páginas
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 4 * cm, id='normal')
+        doc = SimpleDocTemplate(buffer, pagesize=A5)
 
-    # Crear el PageTemplate
-    template = PageTemplate(id='test', frames=frame, onPage=lambda canvas, doc: add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual))
-    doc.addPageTemplates([template])
+        # Crear un marco para las páginas dejando espacio para el header (5 cm) y footer (5 cm)
+        frame = Frame(doc.leftMargin, doc.bottomMargin + 5 * cm, doc.width, doc.height - 10 * cm, id='normal')
 
-    elements = []
+        # Crear el PageTemplate con encabezado y pie de página
+        template = PageTemplate(id='test', frames=frame, onPage=lambda canvas, doc: add_header_footer(canvas, doc, nombre, apellido, rut, direccion, comuna, edad, fecha_actual))
+        doc.addPageTemplates([template])
 
-    # Estilos
-    styles = getSampleStyleSheet()
-    normal_style = styles['BodyText']
-    
-    # Nuevo estilo para la derivación en negrita
-    bold_derivation_style = ParagraphStyle(name='BoldDerivation', parent=normal_style)
-    bold_derivation_style.fontName = 'Helvetica-Bold'  # Cambia la fuente a negrita
+        elements = []
 
-    # Derivaciones del carrito
+        # Estilos
+        styles = getSampleStyleSheet()
+        normal_style = styles['BodyText']
+        bold_category_style = ParagraphStyle(name='BoldCategory', parent=normal_style, fontName='Helvetica-Bold')
 
-    elements.append(Spacer(1, 7))
+        # Derivaciones del carrito
+        elements.append(Spacer(1, 20))
+        elements.append(Paragraph("<b>INTERCONSULTA</b>", bold_category_style))
 
-    # Organizar las derivaciones por nombre de derivación
-    derivaciones_por_nombre = {}
-    for derivacion in derivaciones_carrito:
-        nombre_derivacion = derivacion['item__derivacion__nombre']
-        if nombre_derivacion not in derivaciones_por_nombre:
-            derivaciones_por_nombre[nombre_derivacion] = []
-        derivaciones_por_nombre[nombre_derivacion].append(derivacion['item__nombre'])
+        for derivacion in derivaciones_carrito:
+            elements.append(Paragraph(derivacion['producto__nombre'], normal_style))
+            if len(elements) > 30:  # Asegura que haya suficiente espacio en cada página
+                elements.append(PageBreak())
+                break
 
-    for nombre_derivacion, items in derivaciones_por_nombre.items():
-        elements.append(Paragraph(f"<b>Derivación: {nombre_derivacion}</b>", bold_derivation_style))  # Derivación en negrita
-        for item in items:
-            elements.append(Paragraph(item, normal_style))
-            elements.append(Spacer(1, 7))
-    elements.append(Paragraph("Se solicita evaluación por especialidad:", normal_style))
-    # Construir el documento
-    doc.build(elements)
+        logger.info("Construyendo el documento PDF de derivaciones.")
+        # Construir el documento
+        doc.build(elements)
 
-    email_subject = "Reporte de Derivaciones"
-    email_body = render_to_string('correos/email_template.html', {'user': request.user})
-    email_message = EmailMessage(
-        email_subject,
-        email_body,
-        settings.EMAIL_HOST_USER,
-        [request.user.email],
-    )
-    email_message.attach('derivaciones.pdf', buffer.getvalue(), 'application/pdf')
-    email_message.send()
+        response.write(buffer.getvalue())
+        buffer.close()
 
-    response.write(buffer.getvalue())
-    buffer.close()
+        # Clear session data to avoid reuse of old data
+        del request.session['derivaciones_carrito']
 
-    return response
+        logger.info("PDF de derivaciones generado exitosamente.")
+        return response
+    except Exception as e:
+        logger.error("Error generando PDF de derivaciones: %s", e)
+        return render(request, 'vacio.html')
 
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 
-def send_email(subject, message, from_email, recipient_list, attachment_file):
-    email = EmailMessage(
-        subject=subject,
-        body=message,
-        from_email=from_email,
-        to=recipient_list
-    )
-
-    email.attach(attachment_file.name, attachment_file.read(), 'application/pdf')
-
-    email.send()
 
 
 
 @login_required(login_url='/login')
+@transaction.atomic
 def pago_exitoso(request):
     user = request.user
     carrito, created = Carrito.objects.get_or_create(usuario=user)
@@ -678,22 +550,61 @@ def pago_exitoso(request):
     pago_exitoso = True  # Aquí debería ir la lógica real del pago
 
     if pago_exitoso:
-        # Guardar los productos del carrito en la sesión
-        productos_carrito = list(carrito.itemcarrito_set.filter(item__categoria__isnull=False).values('item__nombre', 'item__categoria__nombre'))
-        request.session['productos_carrito'] = productos_carrito
-        
-        # Guardar las derivaciones del carrito en la sesión
-        derivaciones_carrito = list(carrito.itemcarrito_set.filter(item__derivacion__isnull=False).values('item__nombre', 'item__derivacion__nombre'))
-        request.session['derivaciones_carrito'] = derivaciones_carrito
+        # Crear la compra
+        compra = Compra(usuario=user)
+        compra.save()
 
-        # Registrar la compra en CompraHistorica
+        costo_total = 0
+        categorias_incluidas = set()
+        derivaciones_incluidas = set()
+
+        productos_carrito = []
+        derivaciones_carrito = []
+
+        # Añadir items del carrito a la compra y calcular el costo
         for item_carrito in carrito.itemcarrito_set.all():
-            CompraHistorica.objects.create(
-                usuario=user,
-                producto=item_carrito.item,
-                fecha_compra=timezone.now(),
-                costo=0  # Asumiendo que tu modelo Item tiene un campo precio
+            producto = item_carrito.item
+            cantidad = 1  # Asumiendo que cada item en el carrito representa una unidad. Ajusta si es necesario.
+
+            # Verificar si la categoría del producto ya está incluida
+            if producto.categoria and producto.categoria.id not in categorias_incluidas:
+                costo_total += producto.categoria.precio
+                categorias_incluidas.add(producto.categoria.id)
+
+            # Verificar si la derivación del producto ya está incluida
+            if producto.derivacion and producto.derivacion.id not in derivaciones_incluidas:
+                costo_total += producto.derivacion.precio
+                derivaciones_incluidas.add(producto.derivacion.id)
+
+            # Crear un CompraItem
+            CompraItem.objects.create(
+                compra=compra,
+                producto=producto,
+                cantidad=cantidad,
+                costo=producto.categoria.precio if producto.categoria else producto.derivacion.precio
             )
+
+            # Añadir el producto a la lista para la sesión
+            productos_carrito.append({
+                'producto__nombre': producto.nombre,
+                'producto__categoria__nombre': producto.categoria.nombre if producto.categoria else '',
+                'producto__derivacion__nombre': producto.derivacion.nombre if producto.derivacion else '',
+            })
+
+            # Si hay derivaciones, añadir a la lista de derivaciones para la sesión
+            if producto.derivacion:
+                derivaciones_carrito.append({
+                    'producto__nombre': producto.nombre,
+                    'producto__derivacion__nombre': producto.derivacion.nombre,
+                })
+
+        # Actualizar el costo total de la compra
+        compra.costo_total = costo_total
+        compra.save()
+
+        # Guardar los productos del carrito en la sesión
+        request.session['productos_carrito'] = productos_carrito
+        request.session['derivaciones_carrito'] = derivaciones_carrito
 
         # Limpiar el carrito después de registrar la compra
         carrito.limpiar_carrito()
@@ -725,29 +636,6 @@ def ver_diagnosticos(request, derivacion_id):
     diagnosticos = Item.objects.filter(derivacion=derivacion)
     return render(request, 'derivaciones/diagnostico.html', {'derivacion': derivacion, 'diagnosticos': diagnosticos})
 
-
-
-def enviar_correo_con_adjuntos(usuario, asunto, cuerpo, pdf_productos, pdf_derivaciones):
-    # Obtener el correo electrónico del usuario
-    destinatario = usuario.email
-    
-    # Renderizar el cuerpo del correo electrónico como texto plano
-    cuerpo_plano = strip_tags(cuerpo)
-    
-    
-    # Crear el objeto EmailMessage
-    email = EmailMessage(
-        subject=asunto,
-        body=cuerpo_plano,
-        from_email='Nuuk_medical@options.cl',  # Cambia esto por tu dirección de correo electrónico
-        to=[destinatario],
-    )
-    
-    email.attach('productos.pdf', pdf_productos, 'application/pdf')
-    email.attach('derivaciones.pdf', pdf_derivaciones, 'application/pdf')
-    
-    # Enviar el correo electrónico
-    email.send(fail_silently=False)
 
 
 def nosotros(request):

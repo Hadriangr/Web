@@ -21,6 +21,11 @@ class CustomUserCreationForm(UserCreationForm):
             years=range(2024, 1899, -1)  # Rango de años para el calendario desplegable
         )
     )
+    terminosCheckbox = forms.BooleanField(
+        required=True,
+        label='Acepto los términos y condiciones',
+        error_messages={'required': 'Debe aceptar los términos y condiciones'}
+    )
 
     email = forms.EmailField(label='Correo electrónico', max_length=254, help_text='Required. Inform a valid email address.')
     email_confirm = forms.EmailField(label='Confirmar correo electrónico')
@@ -31,6 +36,13 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ('nombre', 'apellido', 'email', 'email_confirm', 'region', 'comuna', 'direccion', 'telefono_contacto', 'fecha_nacimiento', 'rut', 'genero', 'password1', 'password2')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = user.email  # Asignar el email como username
+        if commit:
+            user.save()
+        return user
 
     fecha_nacimiento = forms.DateField(widget=DateInput(attrs={'type': 'date'}))
     def __init__(self, *args, **kwargs):

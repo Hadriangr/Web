@@ -68,7 +68,7 @@
 
                     <form method="get" action="{% url 'pago_exitoso' %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-primary" {% if items_por_categoria|length == 0 and items_por_derivacion|length == 0 %}disabled{% endif %}>Pagar</button>
+                        <button type="submit" class="btn btn-primary">Pagar</button>
                     </form>
                 </div>
             </div>

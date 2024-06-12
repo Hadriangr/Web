@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Agregar al Carrito
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="alert-box">
+        <p>No ha adquirido este tipo de producto, Será redirigido al inicio.</p>
+    </div>
+</div>
+
+<script>
+    setTimeout(function() {
+        window.location.href = '/';
+    }, 7000);
+</script>
+
+<style>
+    .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80vh; /* Adjust height as necessary */
+    }
+    .alert-box {
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 15px;
+        background-color: #f9f9f9;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-size: 18px;
+    }
+</style>
+{% endblock %}
